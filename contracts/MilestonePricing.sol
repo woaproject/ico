@@ -9,7 +9,7 @@ pragma solidity ^0.4.6;
 import "./PricingStrategy.sol";
 import "./Crowdsale.sol";
 import "./SafeMathLib.sol";
-import "zeppelin/contracts/ownership/Ownable.sol";
+import "oracles-zeppelin/contracts/ownership/Ownable.sol";
 
 
 /// @dev Time milestone based pricing with special support for pre-ico deals.

@@ -7,7 +7,7 @@
 pragma solidity ^0.4.8;
 
 import "./StandardToken.sol";
-import "zeppelin/contracts/ownership/Ownable.sol";
+import "oracles-zeppelin/contracts/ownership/Ownable.sol";
 
 /**
  * Hold tokens for a group investor of investors until the unlock date.

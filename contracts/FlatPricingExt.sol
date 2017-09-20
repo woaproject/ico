@@ -7,7 +7,7 @@
 pragma solidity ^0.4.12;
 
 import "./CrowdsaleExt.sol";
-import "zeppelin/contracts/ownership/Ownable.sol";
+import "oracles-zeppelin/contracts/ownership/Ownable.sol";
 import "./PricingStrategy.sol";
 import "./SafeMathLibExt.sol";
 
