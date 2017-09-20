@@ -90,3 +90,5 @@ csvs
 
 # Libreoffice tmp files
 .~*
+
+node_modules/
