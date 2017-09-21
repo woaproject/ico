@@ -110,7 +110,11 @@ module.exports = function(deployer, network, accounts) {
 	    	let inTokensPercentage = [];
 	    	inTokensPercentage.push(investor.reservedTokensInPercentage);
 	    	instance.setReservedTokensListMultiple(addrs, inTokens, inTokensPercentage);*/
-	    	instance.setReservedTokensList(investor.addr, investor.reservedTokens, investor.reservedTokensInPercentage);
+	    	await instance.setReservedTokensList(investor.addr, investor.reservedTokens, investor.reservedTokensInPercentage);
+
+	    	await instance.setMintAgent(MintedTokenCappedCrowdsaleExt.address);
+	    	await instance.setMintAgent(NullFinalizeAgentExt.address);
+	    	await instance.setMintAgent(ReservedTokensFinalizeAgent.address);
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
