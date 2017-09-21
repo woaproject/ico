@@ -9,7 +9,7 @@ var web3;
 if (typeof web3 !== 'undefined') {
   web3 = new Web3(web3.currentProvider);
 } else {
-  web3 = new Web3(new Web3.providers.HttpProvider(config.rpc));
+  web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 }
 
 var token = {
@@ -66,7 +66,6 @@ var crowdsaleParams = [
 ];
 
 module.exports = function(deployer, network, accounts) {
-	console.log(accounts);
   	deployer.deploy(SafeMathLibExt).then(function() {
 	  	deployer.link(SafeMathLibExt, CrowdsaleTokenExt).then(function() {
 	  		deployer.deploy(CrowdsaleTokenExt, ...tokenParams)
@@ -77,7 +76,6 @@ module.exports = function(deployer, network, accounts) {
 			  			crowdsaleParams.unshift(FlatPricingExt.address);
 			  			crowdsaleParams.unshift(CrowdsaleTokenExt.address);
 
-			  			console.log(crowdsaleParams);
 			  			deployer.link(SafeMathLibExt, MintedTokenCappedCrowdsaleExt).then(function() {
 					    	deployer.deploy(MintedTokenCappedCrowdsaleExt, ...crowdsaleParams);
 					    });

@@ -5,12 +5,8 @@ module.exports = {
       port: 8545,
       network_id: "*", // Match any network id,
       gas:5000000
-    },
-    kovan: {
-      host: "localhost",
-      port: 8545,
-      network_id: "*", // Match any network id,
-      gas:5000000
     }
+  }, mocha: {
+    useColors: true
   }
 };
