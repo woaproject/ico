@@ -48,7 +48,7 @@ module.exports = function(deployer, network, accounts) {
   		await deployer.deploy(CrowdsaleTokenExt, ...tokenParams);
 		await deployer.link(SafeMathLibExt, FlatPricingExt);
   		await deployer.deploy(FlatPricingExt, ...pricingStrategyParams);
-  		crowdsaleParams.unshift(accounts[0]);
+  		crowdsaleParams.unshift(accounts[3]);
 		crowdsaleParams.unshift(FlatPricingExt.address);
 		crowdsaleParams.unshift(CrowdsaleTokenExt.address);
 
@@ -77,7 +77,7 @@ module.exports = function(deployer, network, accounts) {
 	    	//let inTokensPercentage = [];
 	    	//inTokensPercentage.push(constants.reservedTokens.reservedTokensInPercentage);
 	    	//instance.setReservedTokensListMultiple(addrs, inTokens, inTokensPercentage);
-	    	await instance.setReservedTokensList(accounts[0], constants.reservedTokens.reservedTokensInTokens, constants.reservedTokens.reservedTokensInPercentage);
+	    	await instance.setReservedTokensList(accounts[2], constants.reservedTokens.reservedTokensInTokens, constants.reservedTokens.reservedTokensInPercentage);
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
@@ -103,7 +103,7 @@ module.exports = function(deployer, network, accounts) {
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
-	    	await instance.setEarlyParicipantWhitelist(accounts[0], constants.whiteListItem.status, constants.whiteListItem.minCap, constants.whiteListItem.maxCap);
+	    	await instance.setEarlyParicipantWhitelist(accounts[2], constants.whiteListItem.status, constants.whiteListItem.minCap, constants.whiteListItem.maxCap);
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {

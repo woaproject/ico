@@ -8,7 +8,7 @@ const constants = require("../constants");
 contract('CrowdsaleTokenExt', function(accounts) {
 	it("should get absolute reserved tokens for investor", function() {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
-	    	return instance.getReservedTokensListValInTokens.call(accounts[0]);
+	    	return instance.getReservedTokensListValInTokens.call(accounts[2]);
 	    }).then(function(res) {
 	    	assert.equal(res, constants.reservedTokens.reservedTokensInTokens, "`getReservedTokensListValInTokens` method returns absolute investor's reserved tokens");
 	    });
@@ -16,7 +16,7 @@ contract('CrowdsaleTokenExt', function(accounts) {
 
 	it("should get reserved tokens in percentage for investor", function() {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
-	    	return instance.getReservedTokensListValInPercentage.call(accounts[0]);
+	    	return instance.getReservedTokensListValInPercentage.call(accounts[2]);
 	    }).then(function(res) {
 	    	assert.equal(res, constants.reservedTokens.reservedTokensInPercentage, "`getReservedTokensListValInPercentage` method returns investor's reserved tokens in percentage");
 	    });
