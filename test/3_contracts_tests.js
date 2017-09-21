@@ -8,7 +8,7 @@ contract('SafeMathLibExt', function(accounts) {
 	    return SafeMathLibExt.deployed().then(function(instance) {
 	      return instance.times.call(2,3);
 	    }).then(function(res) {
-	      assert.equal(res, 5, "2*3 isn't eqal 6");
+	      assert.equal(res, 6, "2*3 isn't eqal 6");
 	    });
 	});
 });
