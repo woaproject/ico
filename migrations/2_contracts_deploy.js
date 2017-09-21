@@ -113,5 +113,9 @@ module.exports = function(deployer, network, accounts) {
 	    await CrowdsaleTokenExt.deployed().then(async (instance) => {
 	    	await instance.setReleaseAgent(ReservedTokensFinalizeAgent.address);
 	    });
+
+	    await CrowdsaleTokenExt.deployed().then(async (instance) => {
+	    	await instance.transferOwnership(ReservedTokensFinalizeAgent.address);
+	    });
   	});
 };

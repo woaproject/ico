@@ -53,4 +53,12 @@ contract('CrowdsaleTokenExt', function(accounts) {
 	    	assert.equal(res, ReservedTokensFinalizeAgent.address, "ReservedTokensFinalizeAgent contract should be the releaseAgent of token contract");
 	    });
 	});
+
+	it("should get owner", function() {
+		return CrowdsaleTokenExt.deployed().then(function(instance) {
+	    	return instance.owner.call();
+	    }).then(function(res) {
+	    	assert.equal(res, ReservedTokensFinalizeAgent.address, "ReservedTokensFinalizeAgent contract should be the owner of token contract");
+	    });
+	});
 });
