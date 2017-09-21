@@ -1,20 +1,14 @@
-var SafeMathLibExt = artifacts.require("./SafeMathLibExt.sol");
-var CrowdsaleTokenExt = artifacts.require("./CrowdsaleTokenExt.sol");
-var FlatPricingExt = artifacts.require("./FlatPricingExt.sol");
-var MintedTokenCappedCrowdsaleExt = artifacts.require("./MintedTokenCappedCrowdsaleExt.sol");
-var NullFinalizeAgentExt = artifacts.require("./NullFinalizeAgentExt.sol");
-var ReservedTokensFinalizeAgent = artifacts.require("./ReservedTokensFinalizeAgent.sol");
+const SafeMathLibExt = artifacts.require("./SafeMathLibExt.sol");
+const CrowdsaleTokenExt = artifacts.require("./CrowdsaleTokenExt.sol");
+const FlatPricingExt = artifacts.require("./FlatPricingExt.sol");
+const MintedTokenCappedCrowdsaleExt = artifacts.require("./MintedTokenCappedCrowdsaleExt.sol");
+const NullFinalizeAgentExt = artifacts.require("./NullFinalizeAgentExt.sol");
+const ReservedTokensFinalizeAgent = artifacts.require("./ReservedTokensFinalizeAgent.sol");
 
-var Web3 = require("web3");
+const utils = require("./utils");
+const Web3 = require("web3");
 
-var web3;
-if (typeof web3 !== 'undefined') {
-  web3 = new Web3(web3.currentProvider);
-} else {
-  web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-}
-
-var token = {
+const token = {
 	"ticker": "MTK",
 	"name": "MyToken",
 	"decimals": 18,
@@ -23,16 +17,23 @@ var token = {
 	"globalmincap": 1
 };
 
-var pricingStrategy = {
+const investor = {
+	addr: "0x005364854d51A0A12cb3cb9A402ef8b30702a565",
+	reservedTokens: utils.toFixed(10*10**token.decimals),
+	reservedTokensInPercentage: 20
+};
+
+console.log(investor);
+
+const pricingStrategy = {
 	"rate": 1000
 };
 
-var startCrowdsale = parseInt(new Date().getTime()/1000);
-
+const startCrowdsale = parseInt(new Date().getTime()/1000);
 let endCrowdsale = new Date().setDate(new Date().getDate() + 4);
 endCrowdsale = parseInt(new Date(endCrowdsale).setUTCHours(0)/1000);
 
-var crowdsale = {
+const crowdsale = {
 	"updatable": true,
 	"multisig": "0x005364854d51A0A12cb3cb9A402ef8b30702a565",
 	"start": startCrowdsale,
@@ -43,7 +44,7 @@ var crowdsale = {
 	"isWhiteListed": false
 }
 
-var tokenParams = [
+const tokenParams = [
 	token.name,
   	token.ticker,
   	parseInt(token.supply, 10),
@@ -52,12 +53,19 @@ var tokenParams = [
   	token.globalmincap
 ];
 
-var pricingStrategyParams = [
+let web3;
+if (typeof web3 !== 'undefined') {
+  web3 = new Web3(web3.currentProvider);
+} else {
+  web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+}
+
+const pricingStrategyParams = [
 	web3.toWei(1/pricingStrategy.rate, "ether"),
     crowdsale.updatable
 ];
 
-var crowdsaleParams = [
+const crowdsaleParams = [
 	crowdsale.multisig,
 	crowdsale.start,
 	crowdsale.end,
@@ -67,8 +75,8 @@ var crowdsaleParams = [
 	crowdsale.isWhiteListed
 ];
 
-var nullFinalizeAgentParams = [];
-var reservedTokensFinalizeAgentParams = [];
+let nullFinalizeAgentParams = [];
+let reservedTokensFinalizeAgentParams = [];
 
 module.exports = function(deployer, network, accounts) {
   	deployer.deploy(SafeMathLibExt).then(async () => {
@@ -91,8 +99,20 @@ module.exports = function(deployer, network, accounts) {
     	await deployer.link(SafeMathLibExt, ReservedTokensFinalizeAgent);
     	await deployer.deploy(ReservedTokensFinalizeAgent, ...reservedTokensFinalizeAgentParams);
 
-    	FlatPricingExt.deployed().then(async (instance) => {
+    	await FlatPricingExt.deployed().then(async (instance) => {
 	    	instance.setLastCrowdsale(MintedTokenCappedCrowdsaleExt.address);
-	    })
+	    });
+
+	    await CrowdsaleTokenExt.deployed().then(async (instance) => {
+	    	//todo: setReservedTokensListMultiple
+	    	/*let addrs = [];
+	    	addrs.push(investor.addr);
+	    	let inTokens = [];
+	    	inTokens.push(investor.reservedTokens);
+	    	let inTokensPercentage = [];
+	    	inTokensPercentage.push(investor.reservedTokensInPercentage);
+	    	instance.setReservedTokensListMultiple(addrs, inTokens, inTokensPercentage);*/
+	    	instance.setReservedTokensList(investor.addr, investor.reservedTokens, investor.reservedTokensInPercentage);
+	    });
   	});
 };

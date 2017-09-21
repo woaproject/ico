@@ -2,7 +2,7 @@ var FlatPricingExt = artifacts.require("./FlatPricingExt.sol");
 var MintedTokenCappedCrowdsaleExt = artifacts.require("./MintedTokenCappedCrowdsaleExt.sol");
 
 contract('FlatPricingExt', function(accounts) {
-	it("should set last crowdsale tier for pricing strategy contract", function() {
+	it("should get last crowdsale tier for pricing strategy contract", function() {
 		return FlatPricingExt.deployed().then(function(instance) {
 	    	return instance.lastCrowdsale.call();
 	    }).then(function(res) {
