@@ -31,7 +31,6 @@ const pricingStrategyParams = [
 ];
 
 const crowdsaleParams = [
-	constants.crowdsale.multisig,
 	constants.crowdsale.start,
 	constants.crowdsale.end,
 	constants.crowdsale.minimumFundingGoal,
@@ -49,6 +48,7 @@ module.exports = function(deployer, network, accounts) {
   		await deployer.deploy(CrowdsaleTokenExt, ...tokenParams);
 		await deployer.link(SafeMathLibExt, FlatPricingExt);
   		await deployer.deploy(FlatPricingExt, ...pricingStrategyParams);
+  		crowdsaleParams.unshift(accounts[0]);
 		crowdsaleParams.unshift(FlatPricingExt.address);
 		crowdsaleParams.unshift(CrowdsaleTokenExt.address);
 
@@ -70,14 +70,14 @@ module.exports = function(deployer, network, accounts) {
 
 	    await CrowdsaleTokenExt.deployed().then(async (instance) => {
 	    	//todo: setReservedTokensListMultiple
-	    	/*let addrs = [];
-	    	addrs.push(constants.investor.addr);
-	    	let inTokens = [];
-	    	inTokens.push(constants.investor.reservedTokens);
-	    	let inTokensPercentage = [];
-	    	inTokensPercentage.push(constants.investor.reservedTokensInPercentage);
-	    	instance.setReservedTokensListMultiple(addrs, inTokens, inTokensPercentage);*/
-	    	await instance.setReservedTokensList(constants.investor.addr, constants.investor.reservedTokens, constants.investor.reservedTokensInPercentage);
+	    	//let addrs = [];
+	    	//addrs.push(constants.reservedTokens.addr);
+	    	//let inTokens = [];
+	    	//inTokens.push(constants.reservedTokens.reservedTokens);
+	    	//let inTokensPercentage = [];
+	    	//inTokensPercentage.push(constants.reservedTokens.reservedTokensInPercentage);
+	    	//instance.setReservedTokensListMultiple(addrs, inTokens, inTokensPercentage);
+	    	await instance.setReservedTokensList(accounts[0], constants.reservedTokens.reservedTokensInTokens, constants.reservedTokens.reservedTokensInPercentage);
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
@@ -103,7 +103,7 @@ module.exports = function(deployer, network, accounts) {
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
-	    	await instance.setEarlyParicipantWhitelist(constants.whiteListItem.addr, constants.whiteListItem.status, constants.whiteListItem.minCap, constants.whiteListItem.maxCap);
+	    	await instance.setEarlyParicipantWhitelist(accounts[0], constants.whiteListItem.status, constants.whiteListItem.minCap, constants.whiteListItem.maxCap);
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
