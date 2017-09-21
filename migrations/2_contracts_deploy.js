@@ -86,7 +86,13 @@ module.exports = function(deployer, network, accounts) {
     	reservedTokensFinalizeAgentParams.push(CrowdsaleTokenExt.address);
     	reservedTokensFinalizeAgentParams.push(MintedTokenCappedCrowdsaleExt.address);
 
+    	await deployer.link(SafeMathLibExt, NullFinalizeAgentExt);
     	await deployer.deploy(NullFinalizeAgentExt, ...nullFinalizeAgentParams);
-    	deployer.deploy(ReservedTokensFinalizeAgent, ...reservedTokensFinalizeAgentParams);
+    	await deployer.link(SafeMathLibExt, ReservedTokensFinalizeAgent);
+    	await deployer.deploy(ReservedTokensFinalizeAgent, ...reservedTokensFinalizeAgentParams);
+
+    	FlatPricingExt.deployed().then(async (instance) => {
+	    	instance.setLastCrowdsale(MintedTokenCappedCrowdsaleExt.address);
+	    })
   	});
 };

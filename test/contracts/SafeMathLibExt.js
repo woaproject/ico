@@ -2,7 +2,7 @@ const SafeMathLibExt = artifacts.require("./SafeMathLibExt.sol");
 
 
 contract('SafeMathLibExt', function(accounts) {
-	it("should accurately multiply numbers", function() {
+	it("should accurately multiplies numbers", function() {
 	    return SafeMathLibExt.deployed().then(function(instance) {
 	      return instance.times.call(2,3);
 	    }).then(function(res) {
@@ -10,7 +10,7 @@ contract('SafeMathLibExt', function(accounts) {
 	    });
 	});
 
-	it("should accurately divide numbers", function() {
+	it("should accurately divides numbers", function() {
 	    return SafeMathLibExt.deployed().then(function(instance) {
 	      return instance.divides.call(4,2);
 	    }).then(function(res) {
@@ -18,7 +18,7 @@ contract('SafeMathLibExt', function(accounts) {
 	    });
 	});
 
-	it("should accurately minus numbers", function() {
+	it("should accurately substracts numbers", function() {
 	    return SafeMathLibExt.deployed().then(function(instance) {
 	      return instance.minus.call(3,2);
 	    }).then(function(res) {
@@ -26,7 +26,7 @@ contract('SafeMathLibExt', function(accounts) {
 	    });
 	});
 
-	it("should accurately plus numbers", function() {
+	it("should accurately adds numbers", function() {
 	    return SafeMathLibExt.deployed().then(function(instance) {
 	      return instance.plus.call(2,3);
 	    }).then(function(res) {
