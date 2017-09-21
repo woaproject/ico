@@ -20,7 +20,7 @@ const whiteListItem = {
   maxCap: utils.toFixed(10*10**token.decimals),
 };
 
-const investments = [0.5, 11, 1, 5.5, 4];
+const investments = [0.5, 11, 1, 0.5, 5.5, 4];
 
 const startCrowdsale = parseInt(new Date().getTime()/1000);
 let endCrowdsale = new Date().setDate(new Date().getDate() + 4);
@@ -30,7 +30,7 @@ const crowdsale = {
   "start": startCrowdsale,
   "end": endCrowdsale,
   "minimumFundingGoal": 0,
-  "maximumSellableTokens": 1000,
+  "maximumSellableTokens": utils.toFixed(1000*10**token.decimals),
   "isUpdatable": true,
   "isWhiteListed": true
 }

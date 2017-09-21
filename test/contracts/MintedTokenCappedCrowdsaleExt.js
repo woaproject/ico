@@ -85,7 +85,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    }).then(function(res) {
 	    	assert.isOk(false, 'investment willn`t fall');
 	    }, function(err) {
-	    	assert.isOk('everything', 'investment greater than maxCap for investor is not allowed');
+	    	assert.isOk('everything', 'investment is greater than maxCap for investor is not allowed');
 	    });
 	});
 
@@ -102,13 +102,56 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    });
 	});
 
-	it("should return token balalnce we inserted before", function() {
-		let weiToSend = parseInt(constants.investments[2]*constants.rate, 10);
+	it("should return token balance we have bought in previous step", function() {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
 	    	return instance.balanceOf.call(accounts[0]);
 	    }).then(function(res) {
-	    	console.log(res);
-	    	assert.equal(res, constants.investments[2]*10**constants.token.decimals, "balance of investor should be equal the value we inserted before");
+	    	assert.equal(res, constants.investments[2]*10**constants.token.decimals, "balance of investor should be equal the value we bought before");
 	    });
-	}); 
+	});
+
+	it("should accept buy less than minCap at second buy", function() {
+		let weiToSend = parseInt(constants.investments[3]*constants.rate, 10);
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+	    	return instance.buy({from: accounts[0], value: weiToSend});
+	    }).then(function(res) {
+	    	if (res.receipt.blockNumber > 0) {
+	    		assert.isOk('everything', 'investment is passed');
+	    	} else {
+	    		assert.isOk(false, 'investment will fall');
+	    	}
+	    });
+	});
+
+	it("should accept buy of fractioned amount of tokens from whitelisted user within cap range", function() {
+		let weiToSend = parseInt(constants.investments[4]*constants.rate, 10);
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+	    	return instance.buy({from: accounts[0], value: weiToSend});
+	    }).then(function(res) {
+	    	if (res.receipt.blockNumber > 0) {
+	    		assert.isOk('everything', 'investment is passed');
+	    	} else {
+	    		assert.isOk(false, 'investment will fall');
+	    	}
+	    });
+	});
+
+	it("should return token balance we have bought in previous step", function() {
+		return CrowdsaleTokenExt.deployed().then(function(instance) {
+	    	return instance.balanceOf.call(accounts[0]);
+	    }).then(function(res) {
+	    	assert.equal(res, (constants.investments[2] + constants.investments[3] + constants.investments[4])*10**constants.token.decimals, "balance of investor should be equal the total value we bought before");
+	    });
+	});
+
+	it("shouldn't accept investment from whitelisted user that exceeds maxCap", function() {
+		let weiToSend = parseInt(constants.investments[5]*constants.rate, 10);
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+			return instance.buy({from: accounts[0], value: weiToSend});
+	    }).then(function(res) {
+	    	assert.isOk(false, 'investment willn`t fall');
+	    }, function(err) {
+	    	assert.isOk('everything', 'investment is greater than maxCap in total for investor is not allowed');
+	    });
+	});
 });
