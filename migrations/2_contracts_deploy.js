@@ -111,17 +111,36 @@ module.exports = function(deployer, network, accounts) {
 	    	inTokensPercentage.push(investor.reservedTokensInPercentage);
 	    	instance.setReservedTokensListMultiple(addrs, inTokens, inTokensPercentage);*/
 	    	await instance.setReservedTokensList(investor.addr, investor.reservedTokens, investor.reservedTokensInPercentage);
-
-	    	await instance.setMintAgent(MintedTokenCappedCrowdsaleExt.address);
-	    	await instance.setMintAgent(NullFinalizeAgentExt.address);
-	    	await instance.setMintAgent(ReservedTokensFinalizeAgent.address);
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
 	    	//instance.updateJoinedCrowdsalesMultiple(MintedTokenCappedCrowdsaleExt.address);
 	    	await instance.clearJoinedCrowdsales();
-	    	await instance.setLastCrowdsale(instance.address);
 	    	//await instance.updateJoinedCrowdsales(instance.address);
+	    });
+
+	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
+	    	await instance.setLastCrowdsale(instance.address);
+	    });
+
+	    await CrowdsaleTokenExt.deployed().then(async (instance) => {
+	    	await instance.setMintAgent(MintedTokenCappedCrowdsaleExt.address, true);
+	    });
+
+	    await CrowdsaleTokenExt.deployed().then(async (instance) => {
+	    	await instance.setMintAgent(NullFinalizeAgentExt.address, true);
+	    });
+
+	    await CrowdsaleTokenExt.deployed().then(async (instance) => {
+	    	await instance.setMintAgent(ReservedTokensFinalizeAgent.address, true);
+	    });
+
+	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
+	    	await instance.setFinalizeAgent(ReservedTokensFinalizeAgent.address);
+	    });
+
+	    await CrowdsaleTokenExt.deployed().then(async (instance) => {
+	    	await instance.setReleaseAgent(ReservedTokensFinalizeAgent.address);
 	    });
   	});
 };
