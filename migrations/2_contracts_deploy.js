@@ -2,6 +2,8 @@ var SafeMathLibExt = artifacts.require("./SafeMathLibExt.sol");
 var CrowdsaleTokenExt = artifacts.require("./CrowdsaleTokenExt.sol");
 var FlatPricingExt = artifacts.require("./FlatPricingExt.sol");
 var MintedTokenCappedCrowdsaleExt = artifacts.require("./MintedTokenCappedCrowdsaleExt.sol");
+var NullFinalizeAgentExt = artifacts.require("./NullFinalizeAgentExt.sol");
+var ReservedTokensFinalizeAgent = artifacts.require("./ReservedTokensFinalizeAgent.sol");
 
 var Web3 = require("web3");
 
@@ -65,6 +67,9 @@ var crowdsaleParams = [
 	crowdsale.isWhiteListed
 ];
 
+var nullFinalizeAgentParams = [];
+var reservedTokensFinalizeAgentParams = [];
+
 module.exports = function(deployer, network, accounts) {
   	deployer.deploy(SafeMathLibExt).then(async () => {
 	  	await deployer.link(SafeMathLibExt, CrowdsaleTokenExt);
@@ -75,6 +80,13 @@ module.exports = function(deployer, network, accounts) {
 		crowdsaleParams.unshift(CrowdsaleTokenExt.address);
 
 		await deployer.link(SafeMathLibExt, MintedTokenCappedCrowdsaleExt);
-    	deployer.deploy(MintedTokenCappedCrowdsaleExt, ...crowdsaleParams);
+    	await deployer.deploy(MintedTokenCappedCrowdsaleExt, ...crowdsaleParams);
+
+    	nullFinalizeAgentParams.push(MintedTokenCappedCrowdsaleExt.address);
+    	reservedTokensFinalizeAgentParams.push(CrowdsaleTokenExt.address);
+    	reservedTokensFinalizeAgentParams.push(MintedTokenCappedCrowdsaleExt.address);
+
+    	await deployer.deploy(NullFinalizeAgentExt, ...nullFinalizeAgentParams);
+    	deployer.deploy(ReservedTokensFinalizeAgent, ...reservedTokensFinalizeAgentParams);
   	});
 };
