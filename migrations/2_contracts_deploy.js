@@ -66,22 +66,15 @@ var crowdsaleParams = [
 ];
 
 module.exports = function(deployer, network, accounts) {
-  	deployer.deploy(SafeMathLibExt).then(function() {
-	  	deployer.link(SafeMathLibExt, CrowdsaleTokenExt).then(function() {
-	  		deployer.deploy(CrowdsaleTokenExt, ...tokenParams)
-			.then(function() {
-				deployer.link(SafeMathLibExt, FlatPricingExt).then(function() {
-			  		deployer.deploy(FlatPricingExt, ...pricingStrategyParams)
-			  		.then(function() {
-			  			crowdsaleParams.unshift(FlatPricingExt.address);
-			  			crowdsaleParams.unshift(CrowdsaleTokenExt.address);
+  	deployer.deploy(SafeMathLibExt).then(async () => {
+	  	await deployer.link(SafeMathLibExt, CrowdsaleTokenExt);
+  		await deployer.deploy(CrowdsaleTokenExt, ...tokenParams);
+		await deployer.link(SafeMathLibExt, FlatPricingExt);
+  		await deployer.deploy(FlatPricingExt, ...pricingStrategyParams);
+		crowdsaleParams.unshift(FlatPricingExt.address);
+		crowdsaleParams.unshift(CrowdsaleTokenExt.address);
 
-			  			deployer.link(SafeMathLibExt, MintedTokenCappedCrowdsaleExt).then(function() {
-					    	deployer.deploy(MintedTokenCappedCrowdsaleExt, ...crowdsaleParams);
-					    });
-					});
-			  	});
-		  	});
-  		});
+		await deployer.link(SafeMathLibExt, MintedTokenCappedCrowdsaleExt);
+    	deployer.deploy(MintedTokenCappedCrowdsaleExt, ...crowdsaleParams);
   	});
 };
