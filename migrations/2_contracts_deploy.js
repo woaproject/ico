@@ -23,8 +23,6 @@ const investor = {
 	reservedTokensInPercentage: 20
 };
 
-console.log(investor);
-
 const pricingStrategy = {
 	"rate": 1000
 };
@@ -113,6 +111,13 @@ module.exports = function(deployer, network, accounts) {
 	    	inTokensPercentage.push(investor.reservedTokensInPercentage);
 	    	instance.setReservedTokensListMultiple(addrs, inTokens, inTokensPercentage);*/
 	    	instance.setReservedTokensList(investor.addr, investor.reservedTokens, investor.reservedTokensInPercentage);
+	    });
+
+	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
+	    	//instance.updateJoinedCrowdsalesMultiple(MintedTokenCappedCrowdsaleExt.address);
+	    	await instance.clearJoinedCrowdsales();
+	    	await instance.setLastCrowdsale(instance.address);
+	    	//await instance.updateJoinedCrowdsales(instance.address);
 	    });
   	});
 };

@@ -469,7 +469,7 @@ contract CrowdsaleExt is Haltable {
     lastCrowdsale = addr;
   }
 
-  function clearJoinedCrowdsales() {
+  function clearJoinedCrowdsales() onlyOwner {
     joinedCrowdsalesLen = 0;
   }
 

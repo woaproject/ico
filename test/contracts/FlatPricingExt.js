@@ -6,7 +6,7 @@ contract('FlatPricingExt', function(accounts) {
 		return FlatPricingExt.deployed().then(function(instance) {
 	    	return instance.lastCrowdsale.call();
 	    }).then(function(res) {
-	      assert.equal(res, MintedTokenCappedCrowdsaleExt.address, "`lastCrowdsale` property of Priscing strategy contract is equal MintedTokenCappedCrowdsaleExt address");
+	      assert.equal(res, MintedTokenCappedCrowdsaleExt.address, "`lastCrowdsale` property of Prising strategy contract is equal MintedTokenCappedCrowdsaleExt address");
 	    });
 	});
 });

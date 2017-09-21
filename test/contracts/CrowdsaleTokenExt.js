@@ -20,8 +20,7 @@ contract('CrowdsaleTokenExt', function(accounts) {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
 	    	return instance.getReservedTokensListValInTokens.call(investor.addr);
 	    }).then(function(res) {
-	    	console.log(res);
-	      assert.equal(res, investor.reservedTokens, "`getReservedTokensListValInTokens` method returns absolute investor's reserved tokens");
+	    	assert.equal(res, investor.reservedTokens, "`getReservedTokensListValInTokens` method returns absolute investor's reserved tokens");
 	    });
 	});
 
@@ -29,8 +28,7 @@ contract('CrowdsaleTokenExt', function(accounts) {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
 	    	return instance.getReservedTokensListValInPercentage.call(investor.addr);
 	    }).then(function(res) {
-	    	console.log(res);
-	      assert.equal(res, investor.reservedTokensInPercentage, "`getReservedTokensListValInPercentage` method returns investor's reserved tokens in percentage");
+	    	assert.equal(res, investor.reservedTokensInPercentage, "`getReservedTokensListValInPercentage` method returns investor's reserved tokens in percentage");
 	    });
 	});
 });
