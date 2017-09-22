@@ -137,7 +137,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 
 	it("should return updated balance of multisig", function() {
 		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
-		assert.equal(balanceOfMultisigUpdated, parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10), "balance of multisig should be increased to invested value");
+		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10)), "balance of multisig should be increased to invested value");
 	});
 
 	it("should accept buy of fractioned amount of tokens from whitelisted user within cap range", function() {
@@ -163,7 +163,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 
 	it("should return updated balance of multisig", function() {
 		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
-		assert.equal(balanceOfMultisigUpdated, parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10) + parseInt(weiToSend3, 10), "balance of multisig should be increased to invested value");
+		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10) + parseInt(weiToSend3, 10)), "balance of multisig should be increased to invested value");
 	});
 
 	it("shouldn't accept investment from whitelisted user that exceeds maxCap", function() {
@@ -187,6 +187,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    });
 	});
 	
+	//todo: remove this
 	for (let i = 0; i < 10; i++) {
 		it("should get state for crowdsale", function() {
 			return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
@@ -208,9 +209,14 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    });
 	});
 
-	/*it("should return updated balance of multisig", function() {
-		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
-		console.log(balanceOfMultisigUpdated);
-		assert.equal(balanceOfMultisigUpdated, parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10) + parseInt(weiToSend3, 10), "balance of multisig should be increased to invested value");
-	});*/
+	it("should return updated token balance of user include reserved tokens", function() {
+		return CrowdsaleTokenExt.deployed().then(function(instance) {
+	    	return instance.balanceOf.call(accounts[2]);
+	    }).then(function(tokenBalance) {
+	    	let tokenBalancePattern = (constants.investments[2] + constants.investments[3] + constants.investments[4])*10**constants.token.decimals
+	    	tokenBalancePattern += tokenBalancePattern*constants.reservedTokens.reservedTokensInPercentage/100;
+			tokenBalancePattern += constants.reservedTokens.reservedTokensInTokens;
+	    	assert.equal(tokenBalance, tokenBalancePattern, "balance of investor should be equal the total value we bought before + reserved tokens");
+	    });
+	});
 });
