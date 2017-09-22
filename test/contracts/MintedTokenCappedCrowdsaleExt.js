@@ -176,4 +176,41 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    	assert.isOk('everything', 'investment is greater than maxCap in total for investor is not allowed');
 	    });
 	});
+
+	it("should set endsAt for crowdsale", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+	    	return instance.setEndsAt(parseInt((new Date()).getTime()/1000, {from: accounts[0]}));
+	    }).then(function(res) {
+	    	assert.isOk('everything', 'Set of endsAt is failed');
+	    }, function(err) {
+	    	assert.isOk(false, 'Set of endsAt willn`t fall');
+	    });
+	});
+	
+	for (let i = 0; i < 10; i++) {
+		it("should get state for crowdsale", function() {
+			return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+				return instance.getState.call();
+		    }).then(function(state) {
+		    });
+		});
+	}
+
+
+	it("should finalize crowdsale", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+			return instance.finalize();
+	    }).then(function(res) {
+	    	assert.isOk('everything', 'Finalize is failed');
+	    }, function(err) {
+	    	console.log(err);
+	    	assert.isOk(false, 'Finalize willn`t fall');
+	    });
+	});
+
+	/*it("should return updated balance of multisig", function() {
+		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
+		console.log(balanceOfMultisigUpdated);
+		assert.equal(balanceOfMultisigUpdated, parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10) + parseInt(weiToSend3, 10), "balance of multisig should be increased to invested value");
+	});*/
 });

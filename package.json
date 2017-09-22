@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm install && node_modules/.bin/truffle migrate --network testrpc && node_modules/.bin/truffle test --network testrpc"
   },
   "repository": {
     "type": "git",
