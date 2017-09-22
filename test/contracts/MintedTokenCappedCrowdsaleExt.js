@@ -140,7 +140,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10)), "balance of multisig should be increased to invested value");
 	});
 
-	it("should accept buy of fractioned amount of tokens from whitelisted user within cap range", function() {
+	it("should accept buy of fractionated amount of tokens from whitelisted user within cap range", function() {
 		weiToSend3 = parseInt(constants.investments[4]*constants.rate, 10);
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 	    	return instance.buy({from: accounts[2], value: weiToSend3});
