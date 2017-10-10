@@ -253,6 +253,11 @@ contract CrowdsaleExt is Haltable {
       throw;
     }
 
+    if(investedAmountOf[receiver] == 0) {
+       // A new investor
+       investorCount++;
+    }
+
     // Update investor
     investedAmountOf[receiver] = investedAmountOf[receiver].plus(weiAmount);
     tokenAmountOf[receiver] = tokenAmountOf[receiver].plus(tokenAmount);
@@ -263,11 +268,6 @@ contract CrowdsaleExt is Haltable {
 
     if(pricingStrategy.isPresalePurchase(receiver)) {
         presaleWeiRaised = presaleWeiRaised.plus(weiAmount);
-    }
-
-    if(investedAmountOf[receiver] == 0) {
-       // A new investor
-       investorCount++;
     }
 
     assignTokens(receiver, tokenAmount);
