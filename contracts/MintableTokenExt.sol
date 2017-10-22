@@ -29,32 +29,42 @@ contract MintableTokenExt is StandardToken, Ownable {
 
   event MintingAgentChanged(address addr, bool state  );
 
+  /** inPercentageUnit is percents of tokens multiplied to 10 up to percents decimals.
+  * For example, for reserved tokens in percents 2.54%
+  * inPercentageUnit = 254
+  * inPercentageDecimals = 2
+  */
   struct ReservedTokensData {
     uint inTokens;
-    uint inPercentage;
+    uint inPercentageUnit;
+    uint inPercentageDecimals;
   }
 
   mapping (address => ReservedTokensData) public reservedTokensList;
   address[] public reservedTokensDestinations;
   uint public reservedTokensDestinationsLen = 0;
 
-  function setReservedTokensList(address addr, uint inTokens, uint inPercentage) onlyOwner {
+  function setReservedTokensList(address addr, uint inTokens, uint inPercentageUnit, uint inPercentageDecimals) onlyOwner {
     reservedTokensDestinations.push(addr);
     reservedTokensDestinationsLen++;
-    reservedTokensList[addr] = ReservedTokensData({inTokens:inTokens, inPercentage:inPercentage});
+    reservedTokensList[addr] = ReservedTokensData({inTokens:inTokens, inPercentageUnit:inPercentageUnit, inPercentageDecimals: inPercentageDecimals});
   }
 
   function getReservedTokensListValInTokens(address addr) constant returns (uint inTokens) {
     return reservedTokensList[addr].inTokens;
   }
 
-  function getReservedTokensListValInPercentage(address addr) constant returns (uint inPercentage) {
-    return reservedTokensList[addr].inPercentage;
+  function getReservedTokensListValInPercentageUnit(address addr) constant returns (uint inPercentageUnit) {
+    return reservedTokensList[addr].inPercentageUnit;
   }
 
-  function setReservedTokensListMultiple(address[] addrs, uint[] inTokens, uint[] inPercentage) onlyOwner {
+  function getReservedTokensListValInPercentageDecimals(address addr) constant returns (uint inPercentageDecimals) {
+    return reservedTokensList[addr].inPercentageDecimals;
+  }
+
+  function setReservedTokensListMultiple(address[] addrs, uint[] inTokens, uint[] inPercentageUnit, uint[] inPercentageDecimals) onlyOwner {
     for (uint iterator = 0; iterator < addrs.length; iterator++) {
-      setReservedTokensList(addrs[iterator], inTokens[iterator], inPercentage[iterator]);
+      setReservedTokensList(addrs[iterator], inTokens[iterator], inPercentageUnit[iterator], inPercentageDecimals[iterator]);
     }
   }
 
