@@ -42,9 +42,10 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
     // move reserved tokens in percentage
     for (var j = 0; j < token.reservedTokensDestinationsLen(); j++) {
       uint allocatedBonusInPercentage;
-      uint percentsOfTokens = token.getReservedTokensListValInPercentageUnit(token.reservedTokensDestinations(j))/10**token.getReservedTokensListValInPercentageDecimals(token.reservedTokensDestinations(j));
-      if (percentsOfTokens > 0) {
-        allocatedBonusInPercentage = tokensSold*percentsOfTokens/100;
+      uint percentsOfTokensUnit = token.getReservedTokensListValInPercentageUnit(token.reservedTokensDestinations(j));
+      uint percentsOfTokensDecimals = token.getReservedTokensListValInPercentageDecimals(token.reservedTokensDestinations(j));
+      if (percentsOfTokensUnit > 0) {
+        allocatedBonusInPercentage = tokensSold * percentsOfTokensUnit / 10**percentsOfTokensDecimals / 100;
         tokensSold = tokensSold.plus(allocatedBonusInPercentage);
         token.mint(token.reservedTokensDestinations(j), allocatedBonusInPercentage);
       }
