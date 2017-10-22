@@ -11,7 +11,8 @@ const token = {
 
 const reservedTokens = {
   reservedTokensInTokens: utils.toFixed(10*10**token.decimals),
-  reservedTokensInPercentage: 20
+  reservedTokensInPercentageUnit: 20,
+  reservedTokensInPercentageDecimals: 0
 };
 
 const whiteListItem = {

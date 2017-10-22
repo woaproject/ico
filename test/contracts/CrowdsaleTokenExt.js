@@ -14,11 +14,19 @@ contract('CrowdsaleTokenExt', function(accounts) {
 	    });
 	});
 
-	it("should get reserved tokens in percentage for investor", function() {
+	it("should get reserved tokens in percentage unit for investor", function() {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
-	    	return instance.getReservedTokensListValInPercentage.call(accounts[2]);
+	    	return instance.getReservedTokensListValInPercentageUnit.call(accounts[2]);
 	    }).then(function(res) {
-	    	assert.equal(res, constants.reservedTokens.reservedTokensInPercentage, "`getReservedTokensListValInPercentage` method returns investor's reserved tokens in percentage");
+	    	assert.equal(res, constants.reservedTokens.reservedTokensInPercentageUnit, "`getReservedTokensListValInPercentageUnit` method returns investor's reserved tokens in percentage unit");
+	    });
+	});
+
+	it("should get percentage decimals for reserved tokens", function() {
+		return CrowdsaleTokenExt.deployed().then(function(instance) {
+	    	return instance.getReservedTokensListValInPercentageDecimals.call(accounts[2]);
+	    }).then(function(res) {
+	    	assert.equal(res, constants.reservedTokens.reservedTokensInPercentageDecimals, "`getReservedTokensListValInPercentageDecimals` method returns percentage decimals for investor's reserved tokens");
 	    });
 	});
 
