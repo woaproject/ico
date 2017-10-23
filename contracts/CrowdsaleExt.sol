@@ -84,6 +84,9 @@ contract CrowdsaleExt is Haltable {
 
   address public lastCrowdsale;
 
+  /// Event created on money deposit.
+  event Deposit (address recipient, uint value);
+
   /**
     * Do we verify that contributor has been cleared on the server side (accredited investors only).
     * This method was first used in FirstBlood crowdsale to ensure all contributors have accepted terms on sale (on the web).
@@ -292,6 +295,7 @@ contract CrowdsaleExt is Haltable {
 
     // Tell us invest was success
     Invested(receiver, weiAmount, tokenAmount, customerId);
+    Deposit(receiver, weiAmount);
   }
 
   /**
