@@ -20,6 +20,9 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
   CrowdsaleTokenExt public token;
   CrowdsaleExt public crowdsale;
 
+  /// Event created on reserved tokens distribution.
+  event Deposit (address recipient, uint value);
+
   function ReservedTokensFinalizeAgent(CrowdsaleTokenExt _token, CrowdsaleExt _crowdsale) {
     token = _token;
     crowdsale = _crowdsale;
@@ -48,6 +51,7 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
         allocatedBonusInPercentage = tokensSold * percentsOfTokensUnit / 10**percentsOfTokensDecimals / 100;
         tokensSold = tokensSold.plus(allocatedBonusInPercentage);
         token.mint(token.reservedTokensDestinations(j), allocatedBonusInPercentage);
+        Deposit(token.reservedTokensDestinations(j), allocatedBonusInPercentage);
       }
     }
 
@@ -57,6 +61,7 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
       if (allocatedBonusInTokens > 0) {
         tokensSold = tokensSold.plus(allocatedBonusInTokens);
         token.mint(token.reservedTokensDestinations(i), allocatedBonusInTokens);
+        Deposit(token.reservedTokensDestinations(i), allocatedBonusInTokens);
       }
     }
 
