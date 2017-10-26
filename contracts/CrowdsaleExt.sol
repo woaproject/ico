@@ -248,11 +248,6 @@ contract CrowdsaleExt is Haltable {
       }
     }
 
-    // Check that we did not bust the cap
-    if(isBreakingCap(weiAmount, tokenAmount, weiRaised, tokensSold)) {
-      throw;
-    }
-
     if(investedAmountOf[receiver] == 0) {
        // A new investor
        investorCount++;
@@ -268,6 +263,11 @@ contract CrowdsaleExt is Haltable {
 
     if(pricingStrategy.isPresalePurchase(receiver)) {
         presaleWeiRaised = presaleWeiRaised.plus(weiAmount);
+    }
+
+    // Check that we did not bust the cap
+    if(isBreakingCap(weiAmount, tokenAmount, weiRaised, tokensSold)) {
+      throw;
     }
 
     assignTokens(receiver, tokenAmount);
