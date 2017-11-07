@@ -77,7 +77,7 @@ module.exports = function(deployer, network, accounts) {
 	    	//let inTokensPercentage = [];
 	    	//inTokensPercentage.push(constants.reservedTokens.reservedTokensInPercentage);
 	    	//instance.setReservedTokensListMultiple(addrs, inTokens, inTokensPercentage);
-	    	await instance.setReservedTokensList(accounts[2], constants.reservedTokens.reservedTokensInTokens, constants.reservedTokens.reservedTokensInPercentage);
+	    	await instance.setReservedTokensList(accounts[2], constants.reservedTokens.reservedTokensInTokens, constants.reservedTokens.reservedTokensInPercentageUnit, constants.reservedTokens.reservedTokensInPercentageDecimals);
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {

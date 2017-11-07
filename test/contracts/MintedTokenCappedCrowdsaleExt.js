@@ -214,7 +214,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    	return instance.balanceOf.call(accounts[2]);
 	    }).then(function(tokenBalance) {
 	    	let tokenBalancePattern = (constants.investments[2] + constants.investments[3] + constants.investments[4])*10**constants.token.decimals
-	    	tokenBalancePattern += tokenBalancePattern*constants.reservedTokens.reservedTokensInPercentage/100;
+	    	tokenBalancePattern += tokenBalancePattern*constants.reservedTokens.reservedTokensInPercentageUnit/10**constants.reservedTokens.reservedTokensInPercentageDecimals/100;
 			tokenBalancePattern += constants.reservedTokens.reservedTokensInTokens;
 	    	assert.equal(tokenBalance, tokenBalancePattern, "balance of investor should be equal the total value we bought before + reserved tokens");
 	    });

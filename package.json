@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/vbaranov/ico#readme",
   "dependencies": {
-    "truffle": "^3.4.9",
+    "truffle": "^3.4.11",
     "truffle-contract": "^3.0.0",
     "web3": "^0.19.1"
   },
