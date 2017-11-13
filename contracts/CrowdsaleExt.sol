@@ -295,7 +295,7 @@ contract CrowdsaleExt is Haltable {
 
     // Tell us invest was success
     Invested(receiver, weiAmount, tokenAmount, customerId);
-    Deposit(receiver, tokenAmount);
+    Deposit(receiver, tokenAmount * 10**token.decimals());
   }
 
   /**
