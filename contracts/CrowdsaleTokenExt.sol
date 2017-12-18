@@ -6,6 +6,8 @@
 
 pragma solidity ^0.4.8;
 
+import "oracles-zeppelin/contracts/token/ERC20.sol";
+
 import './StandardToken.sol';
 import "./UpgradeableToken.sol";
 import "./ReleasableToken.sol";
@@ -122,7 +124,7 @@ contract CrowdsaleTokenExt is ReleasableToken, MintableTokenExt, UpgradeableToke
   function claimTokens(address _token) public onlyOwner {
     require(_token != address(0));
 
-    CrowdsaleTokenExt token = CrowdsaleTokenExt(_token);
+    ERC20 token = ERC20(_token);
     uint balance = token.balanceOf(this);
     token.transfer(owner, balance);
 
