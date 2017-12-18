@@ -11,19 +11,28 @@ contract('Registry', function(accounts) {
         });
     });
 
+    it("should get 0 as number of deployed contracts", function() {
+        return Registry.deployed().then(function(instance) {
+            return instance.count.call(accounts[0]);
+        }).then(function(count) {
+            assert.equal(count, 0);
+        }, function () {
+            // Method should fail because array should be empty
+        });
+    })
+
     it("should add a deployed contract", function() {
         return Registry.deployed().then(function(instance) {
-            return instance.add("crowdsale", "0xe78a0f7e598cc8b0bb87894b0f60dd2a88d6a8ab", "{}", { from: accounts[0] })
+            return instance.add("0xe78a0f7e598cc8b0bb87894b0f60dd2a88d6a8ab", { from: accounts[0] })
                 .then(() => {
                     return instance.deployedContracts.call(accounts[0], 0);
                 })
-                .then(([id, deployedAddress, extraData]) => {
-                    assert.equal(id, "crowdsale")
+                .then((deployedAddress) => {
                     assert.equal(deployedAddress, "0xe78a0f7e598cc8b0bb87894b0f60dd2a88d6a8ab")
-                    assert.equal(extraData, "{}")
                 })
         });
     })
+
     it("should add just one deployed contract", function() {
         return Registry.deployed().then(function(instance) {
             return instance.deployedContracts.call(accounts[0], 1)
@@ -32,6 +41,16 @@ contract('Registry', function(accounts) {
                 }, function () {
                     // Method should fail because array should be empty
                 });
+        });
+    })
+
+    it("should get 1 as number of deployed contracts", function() {
+        return Registry.deployed().then(function(instance) {
+            return instance.count.call(accounts[0]);
+        }).then(function(count) {
+            assert.equal(count, 1);
+        }, function () {
+            // Method should fail because array should be empty
         });
     })
 });
