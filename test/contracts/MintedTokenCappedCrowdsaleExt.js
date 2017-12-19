@@ -177,6 +177,22 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    });
 	});
 
+	it("should get the count of whitelisted participants", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+			return instance.whitelistedParticipantsLength.call();
+	    }).then(function(whitelistedParticipantsLength) {
+	    	assert.equal(whitelistedParticipantsLength, 1, 'should have 1 whitelisted participant');
+	    });
+	});
+
+	it("should add whitelisted participants to the list", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+			return instance.whitelistedParticipants.call(0);
+	    }).then(function(whitelistedParticipant) {
+	    	assert.equal(whitelistedParticipant, accounts[2], 'should have added the whitelisted participant');
+	    });
+	});
+
 	it("should set endsAt for crowdsale", function() {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 	    	return instance.setEndsAt(parseInt((new Date()).getTime()/1000, {from: accounts[0]}));
@@ -186,7 +202,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    	assert.isOk(false, 'Set of endsAt willn`t fall');
 	    });
 	});
-	
+
 	//todo: remove this
 	for (let i = 0; i < 10; i++) {
 		it("should get state for crowdsale", function() {

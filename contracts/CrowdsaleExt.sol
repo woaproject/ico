@@ -111,6 +111,9 @@ contract CrowdsaleExt is Haltable {
   /** Addresses that are allowed to invest even before ICO offical opens. For testing, for ICO partners, etc. */
   mapping (address => WhiteListData) public earlyParticipantWhitelist;
 
+  /** List of whitelisted addresses */
+  address[] public whitelistedParticipants;
+
   /** This is for manul testing for the interaction from owner wallet. You can set it to any value and inspect this in blockchain explorer to see that crowdsale interaction works. */
   uint public ownerTestValue;
 
@@ -440,6 +443,7 @@ contract CrowdsaleExt is Haltable {
   function setEarlyParticipantWhitelist(address addr, bool status, uint minCap, uint maxCap) onlyOwner {
     if (!isWhiteListed) throw;
     earlyParticipantWhitelist[addr] = WhiteListData({status:status, minCap:minCap, maxCap:maxCap});
+    whitelistedParticipants.push(addr);
     Whitelisted(addr, status);
   }
 
@@ -693,4 +697,8 @@ contract CrowdsaleExt is Haltable {
    * Create new tokens or transfer issued tokens to the investor depending on the cap model.
    */
   function assignTokens(address receiver, uint tokenAmount) private;
+
+  function whitelistedParticipantsLength() public constant returns (uint) {
+    return whitelistedParticipants.length;
+  }
 }
