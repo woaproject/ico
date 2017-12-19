@@ -278,14 +278,14 @@ contract CrowdsaleExt is Haltable {
     if (isWhiteListed) {
       uint num = 0;
       for (var i = 0; i < joinedCrowdsalesLen; i++) {
-        if (this == joinedCrowdsales[i]) 
+        if (this == joinedCrowdsales[i])
           num = i;
       }
 
       if (num + 1 < joinedCrowdsalesLen) {
         for (var j = num + 1; j < joinedCrowdsalesLen; j++) {
           CrowdsaleExt crowdsale = CrowdsaleExt(joinedCrowdsales[j]);
-          crowdsale.updateEarlyParicipantWhitelist(msg.sender, this, tokenAmount);
+          crowdsale.updateEarlyParticipantWhitelist(msg.sender, this, tokenAmount);
         }
       }
     }
@@ -436,23 +436,21 @@ contract CrowdsaleExt is Haltable {
 
   /**
    * Allow addresses to do early participation.
-   *
-   * TODO: Fix spelling error in the name
    */
-  function setEarlyParicipantWhitelist(address addr, bool status, uint minCap, uint maxCap) onlyOwner {
+  function setEarlyParticipantWhitelist(address addr, bool status, uint minCap, uint maxCap) onlyOwner {
     if (!isWhiteListed) throw;
     earlyParticipantWhitelist[addr] = WhiteListData({status:status, minCap:minCap, maxCap:maxCap});
     Whitelisted(addr, status);
   }
 
-  function setEarlyParicipantsWhitelist(address[] addrs, bool[] statuses, uint[] minCaps, uint[] maxCaps) onlyOwner {
+  function setEarlyParticipantsWhitelist(address[] addrs, bool[] statuses, uint[] minCaps, uint[] maxCaps) onlyOwner {
     if (!isWhiteListed) throw;
     for (uint iterator = 0; iterator < addrs.length; iterator++) {
-      setEarlyParicipantWhitelist(addrs[iterator], statuses[iterator], minCaps[iterator], maxCaps[iterator]);
+      setEarlyParticipantWhitelist(addrs[iterator], statuses[iterator], minCaps[iterator], maxCaps[iterator]);
     }
   }
 
-  function updateEarlyParicipantWhitelist(address addr, address contractAddr, uint tokensBought) {
+  function updateEarlyParticipantWhitelist(address addr, address contractAddr, uint tokensBought) {
     if (tokensBought < earlyParticipantWhitelist[addr].minCap) throw;
     if (!isWhiteListed) throw;
     if (addr != msg.sender && contractAddr != msg.sender) throw;
@@ -533,7 +531,7 @@ contract CrowdsaleExt is Haltable {
 
     uint num = 0;
     for (var i = 0; i < joinedCrowdsalesLen; i++) {
-      if (this == joinedCrowdsales[i]) 
+      if (this == joinedCrowdsales[i])
         num = i;
     }
 
