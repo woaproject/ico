@@ -6,8 +6,6 @@
 
 pragma solidity ^0.4.8;
 
-import "oracles-zeppelin/contracts/token/ERC20.sol";
-
 import './StandardToken.sol';
 import "./UpgradeableToken.sol";
 import "./ReleasableToken.sol";
