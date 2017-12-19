@@ -186,7 +186,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    	assert.isOk(false, 'Set of endsAt willn`t fall');
 	    });
 	});
-	
+
 	//todo: remove this
 	for (let i = 0; i < 10; i++) {
 		it("should get state for crowdsale", function() {
@@ -217,6 +217,14 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    	tokenBalancePattern += tokenBalancePattern*constants.reservedTokens.reservedTokensInPercentageUnit/10**constants.reservedTokens.reservedTokensInPercentageDecimals/100;
 			tokenBalancePattern += constants.reservedTokens.reservedTokensInTokens;
 	    	assert.equal(tokenBalance, tokenBalancePattern, "balance of investor should be equal the total value we bought before + reserved tokens");
+	    });
+	});
+
+	it("should get name of crowdsale", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+	    	return instance.name.call();
+	    }).then(function(name) {
+	    	assert.equal(name, "Test Crowdsale", "The name of the crowdsale should be accessible");
 	    });
 	});
 });
