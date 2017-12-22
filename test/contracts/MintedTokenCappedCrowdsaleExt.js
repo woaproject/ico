@@ -193,6 +193,55 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    });
 	});
 
+    it("should not allow adding the 0 address to the whitelist", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+            const token = constants.token
+            const minCap = 1 * 10**token.decimals
+            const maxCap = 10 * 10**token.decimals
+			return instance.setEarlyParticipantWhitelist('0x0', true, minCap, maxCap, { from: accounts[0] });
+	    }).then(function() {
+	    	assert.fail('transaction should fail');
+        }, function(e) {
+            // should enter here
+        });
+    })
+
+    it("should not allow adding an address to the whitelist with a minCap greater than the maxCap", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+            const token = constants.token
+            const minCap = 10 * 10**token.decimals
+            const maxCap = 1 * 10**token.decimals
+			return instance.setEarlyParticipantWhitelist(accounts[5], true, minCap, maxCap, { from: accounts[0] });
+	    }).then(function() {
+	    	assert.fail('transaction should fail');
+        }, function(e) {
+            // should enter here
+        });
+    })
+
+    it("should not allow adding an address to the whitelist that was already added", function() {
+        let currentWhitelistLength = null
+
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+            return instance.whitelistedParticipantsLength.call()
+                .then(length => {
+                    currentWhitelistLength = length
+                })
+                .then(() => instance)
+        }).then(function(instance) {
+            const token = constants.token
+            const minCap = 1 * 10**token.decimals
+            const maxCap = 10 * 10**token.decimals
+            return instance.setEarlyParticipantWhitelist(accounts[2], true, minCap, maxCap, { from: accounts[0] })
+                .then(() => instance)
+	    }).then(function(instance) {
+            return instance.whitelistedParticipantsLength.call()
+                .then(length => {
+                    assert.equal(currentWhitelistLength.toString(), length.toString(), 'The length of the whitelist should not have changed')
+                })
+        });
+    })
+
 	it("should set endsAt for crowdsale", function() {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 	    	return instance.setEndsAt(parseInt((new Date()).getTime()/1000, {from: accounts[0]}));

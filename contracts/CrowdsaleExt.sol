@@ -442,9 +442,14 @@ contract CrowdsaleExt is Haltable {
    */
   function setEarlyParticipantWhitelist(address addr, bool status, uint minCap, uint maxCap) onlyOwner {
     if (!isWhiteListed) throw;
-    earlyParticipantWhitelist[addr] = WhiteListData({status:status, minCap:minCap, maxCap:maxCap});
-    whitelistedParticipants.push(addr);
-    Whitelisted(addr, status);
+    assert(addr != address(0));
+    assert(minCap <= maxCap);
+
+    if (earlyParticipantWhitelist[addr].maxCap == 0) {
+      earlyParticipantWhitelist[addr] = WhiteListData({status:status, minCap:minCap, maxCap:maxCap});
+      whitelistedParticipants.push(addr);
+      Whitelisted(addr, status);
+    }
   }
 
   function setEarlyParticipantsWhitelist(address[] addrs, bool[] statuses, uint[] minCaps, uint[] maxCaps) onlyOwner {
