@@ -219,7 +219,20 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
         });
     })
 
-    it("should not allow adding an address to the whitelist that was already added", function() {
+    it("should not allow adding an address to the whitelist with a maxCap of 0", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+            const token = constants.token
+            const minCap = 0
+            const maxCap = 0
+			return instance.setEarlyParticipantWhitelist(accounts[5], true, minCap, maxCap, { from: accounts[0] });
+	    }).then(function() {
+	    	assert.fail('transaction should fail');
+        }, function(e) {
+            // should enter here
+        });
+    })
+
+    it("should not add an address to the whitelist that was already added", function() {
         let currentWhitelistLength = null
 
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {

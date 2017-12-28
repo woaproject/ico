@@ -448,6 +448,7 @@ contract CrowdsaleExt is Haltable {
   function setEarlyParticipantWhitelist(address addr, bool status, uint minCap, uint maxCap) onlyOwner {
     if (!isWhiteListed) throw;
     assert(addr != address(0));
+    assert(maxCap > 0);
     assert(minCap <= maxCap);
 
     if (earlyParticipantWhitelist[addr].maxCap == 0) {
