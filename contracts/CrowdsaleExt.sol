@@ -41,6 +41,9 @@ contract CrowdsaleExt is Haltable {
   /* Post-success callback */
   FinalizeAgent public finalizeAgent;
 
+  /* name of the crowdsale tier */
+  string public name;
+
   /* tokens will be transfered from this address */
   address public multisigWallet;
 
@@ -147,9 +150,11 @@ contract CrowdsaleExt is Haltable {
   // Crowdsale end time has been changed
   event EndsAtChanged(uint newEndsAt);
 
-  function CrowdsaleExt(address _token, PricingStrategy _pricingStrategy, address _multisigWallet, uint _start, uint _end, uint _minimumFundingGoal, bool _isUpdatable, bool _isWhiteListed) {
+  function CrowdsaleExt(string _name, address _token, PricingStrategy _pricingStrategy, address _multisigWallet, uint _start, uint _end, uint _minimumFundingGoal, bool _isUpdatable, bool _isWhiteListed) {
 
     owner = msg.sender;
+
+    name = _name;
 
     token = FractionalERC20Ext(_token);
 

@@ -284,4 +284,12 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    	assert.equal(tokenBalance, tokenBalancePattern, "balance of investor should be equal the total value we bought before + reserved tokens");
 	    });
 	});
+
+	it("should get name of crowdsale", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+	    	return instance.name.call();
+	    }).then(function(name) {
+	    	assert.equal(name, "Test Crowdsale", "The name of the crowdsale should be accessible");
+	    });
+	});
 });
