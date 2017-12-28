@@ -69,4 +69,36 @@ contract('CrowdsaleTokenExt', function(accounts) {
 	    	assert.equal(res, ReservedTokensFinalizeAgent.address, "ReservedTokensFinalizeAgent contract should be the owner of token contract");
 	    });
 	});
+
+    it("should allow claiming tokens", function() {
+		const owner = accounts[0]
+
+		const whenToken1 = CrowdsaleTokenExt.new("TestToken1", "TT1", 100, 0, false, 0)
+		const whenToken2 = CrowdsaleTokenExt.new("TestToken2", "TT2", 100, 0, false, 0)
+
+		return Promise.all([whenToken1, whenToken2]).then(([token1, token2]) => {
+			return Promise.resolve()
+				// first, owner has all TT1 tokens
+				.then(() => token1.balanceOf(owner))
+				.then(balance => assert.equal(balance, 100))
+				.then(() => token1.balanceOf(token2.address))
+				.then(balance => assert.equal(balance, 0))
+				// owner transfers 25 TT1 to token2 address by mistake
+				.then(() => token1.setReleaseAgent(owner))
+				.then(() => token1.releaseTokenTransfer())
+				.then(() => token1.transfer(token2.address, 25))
+				// now owner has 75 tokens and token2 has 25
+				.then(() => token1.balanceOf(owner))
+				.then(balance => assert.equal(balance, 75))
+				.then(() => token1.balanceOf(token2.address))
+				.then(balance => assert.equal(balance, 25))
+				// owner claims TT1 tokens in token2
+				.then(() => token2.claimTokens(token1.address))
+				// the tokens are transferred
+				.then(() => token1.balanceOf(token2.address))
+				.then(balance => assert.equal(balance, 0))
+				.then(() => token1.balanceOf(owner))
+				.then(balance => assert.equal(balance, 100))
+		})
+    })
 });
