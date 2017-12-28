@@ -28,6 +28,8 @@ contract CrowdsaleTokenExt is ReleasableToken, MintableTokenExt, UpgradeableToke
   /** Name and symbol were updated. */
   event UpdatedTokenInformation(string newName, string newSymbol);
 
+  event ClaimedTokens(address indexed _token, address indexed _controller, uint _amount);
+
   string public name;
 
   string public symbol;
@@ -110,6 +112,21 @@ contract CrowdsaleTokenExt is ReleasableToken, MintableTokenExt, UpgradeableToke
     symbol = _symbol;
 
     UpdatedTokenInformation(name, symbol);
+  }
+
+  /**
+   * Claim tokens that were accidentally sent to this contract.
+   *
+   * @param _token The address of the token contract that you want to recover.
+   */
+  function claimTokens(address _token) public onlyOwner {
+    require(_token != address(0));
+
+    ERC20 token = ERC20(_token);
+    uint balance = token.balanceOf(this);
+    token.transfer(owner, balance);
+
+    ClaimedTokens(_token, owner, balance);
   }
 
 }

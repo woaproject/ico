@@ -52,6 +52,7 @@ module.exports = function(deployer, network, accounts) {
   		crowdsaleParams.unshift(accounts[3]);
 		crowdsaleParams.unshift(FlatPricingExt.address);
 		crowdsaleParams.unshift(CrowdsaleTokenExt.address);
+		crowdsaleParams.unshift("Test Crowdsale");
 
 		await deployer.link(SafeMathLibExt, MintedTokenCappedCrowdsaleExt);
     	await deployer.deploy(MintedTokenCappedCrowdsaleExt, ...crowdsaleParams);
@@ -121,5 +122,4 @@ module.exports = function(deployer, network, accounts) {
 	    	await instance.transferOwnership(ReservedTokensFinalizeAgent.address);
 	    });
   	});
-
 };
