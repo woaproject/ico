@@ -53,4 +53,17 @@ contract('Registry', function(accounts) {
             // Method should fail because array should be empty
         });
     })
+
+    it.only("should emit an Added event when adding an address", function() {
+        return Registry.deployed().then(function(instance) {
+            const addedWatcher = instance.Added();
+
+            return instance.add("0xe78a0f7e598cc8b0bb87894b0f60dd2a88d6a8ab", { from: accounts[0] })
+                .then(() => addedWatcher.get())
+                .then((events) => {
+                    assert.equal(events.length, 1, "Should have emitted an Added event")
+                    assert.equal(events[0].args.sender, accounts[0]);
+                })
+        });
+    })
 });
