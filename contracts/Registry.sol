@@ -8,11 +8,11 @@ import "oracles-zeppelin/contracts/ownership/Ownable.sol";
 contract Registry is Ownable {
   mapping (address => address[]) public deployedContracts;
 
-  event Added(address indexed sender);
+  event Added(address indexed sender, address indexed deployAddress);
 
   function add(address deployAddress) public {
     deployedContracts[msg.sender].push(deployAddress);
-    Added(msg.sender);
+    Added(msg.sender, deployAddress);
   }
 
   function count(address deployer) constant returns (uint) {
