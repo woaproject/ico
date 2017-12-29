@@ -114,7 +114,7 @@ def proxy_buyers(project, chain, web3, customer, everything_deployed, deploy_add
         pricing_strategy.transact({"from": deploy_address}).setPreicoAddress(proxy_buyer.address, to_wei(price, "ether"))
 
         # Allow proxy buyer to move money in early
-        crowdsale.transact({"from": deploy_address}).setEarlyParicipantWhitelist(proxy_buyer.address, True)
+        crowdsale.transact({"from": deploy_address}).setEarlyParticipantWhitelist(proxy_buyer.address, True)
 
         results.append(proxy_buyer)
 

@@ -104,7 +104,7 @@ module.exports = function(deployer, network, accounts) {
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
-	    	await instance.setEarlyParicipantWhitelist(accounts[2], constants.whiteListItem.status, constants.whiteListItem.minCap, constants.whiteListItem.maxCap);
+	    	await instance.setEarlyParticipantWhitelist(accounts[2], constants.whiteListItem.status, constants.whiteListItem.minCap, constants.whiteListItem.maxCap);
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {

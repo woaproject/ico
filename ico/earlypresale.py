@@ -52,7 +52,7 @@ def participate_early(chain, web3: Web3, presale_address: str, crowdsale_address
 
         if presale.call().balances(investor) > 0:
             print("Whitelisting for {} to crowdsale {}".format(investor, crowdsale.address))
-            txid = crowdsale.transact({"from": deploy_address}).setEarlyParicipantWhitelist(investor, True)
+            txid = crowdsale.transact({"from": deploy_address}).setEarlyParticipantWhitelist(investor, True)
             print("Broadcasting whitelist transaction {}".format(txid))
             check_succesful_tx(web3, txid, timeout=timeout)
 
