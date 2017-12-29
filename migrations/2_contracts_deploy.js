@@ -4,6 +4,7 @@ const FlatPricingExt = artifacts.require("./FlatPricingExt.sol");
 const MintedTokenCappedCrowdsaleExt = artifacts.require("./MintedTokenCappedCrowdsaleExt.sol");
 const NullFinalizeAgentExt = artifacts.require("./NullFinalizeAgentExt.sol");
 const ReservedTokensFinalizeAgent = artifacts.require("./ReservedTokensFinalizeAgent.sol");
+const Registry = artifacts.require("./Registry.sol");
 
 const constants = require("../test/constants");
 const utils = require("../test/utils");
@@ -64,6 +65,8 @@ module.exports = function(deployer, network, accounts) {
     	await deployer.deploy(NullFinalizeAgentExt, ...nullFinalizeAgentParams);
     	await deployer.link(SafeMathLibExt, ReservedTokensFinalizeAgent);
     	await deployer.deploy(ReservedTokensFinalizeAgent, ...reservedTokensFinalizeAgentParams);
+
+        await deployer.deploy(Registry);
 
     	await FlatPricingExt.deployed().then(async (instance) => {
 	    	instance.setLastCrowdsale(MintedTokenCappedCrowdsaleExt.address);
