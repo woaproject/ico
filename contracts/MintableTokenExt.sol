@@ -45,8 +45,13 @@ contract MintableTokenExt is StandardToken, Ownable {
   uint public reservedTokensDestinationsLen = 0;
 
   function setReservedTokensList(address addr, uint inTokens, uint inPercentageUnit, uint inPercentageDecimals) onlyOwner {
-    reservedTokensDestinations.push(addr);
-    reservedTokensDestinationsLen++;
+    assert(addr != address(0));
+    assert(!mintingFinished);
+    if (reservedTokensList[addr].inTokens == 0 && reservedTokensList[addr].inPercentageUnit == 0) {
+      reservedTokensDestinations.push(addr);
+      reservedTokensDestinationsLen++;
+    }
+
     reservedTokensList[addr] = ReservedTokensData({inTokens:inTokens, inPercentageUnit:inPercentageUnit, inPercentageDecimals: inPercentageDecimals});
   }
 
