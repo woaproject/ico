@@ -40,23 +40,23 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
     uint tokensSold = crowdsale.tokensSold();
 
     // move reserved tokens in percentage
-    for (var j = 0; j < token.reservedTokensDestinationsLen(); j++) {
+    for (uint256 j = 0; j < token.reservedTokensDestinationsLen(); j++) {
+      address reservedAddrForPercents = token.reservedTokensDestinations(j);
       uint allocatedBonusInPercentage;
-      uint percentsOfTokensUnit = token.getReservedTokensListValInPercentageUnit(token.reservedTokensDestinations(j));
-      uint percentsOfTokensDecimals = token.getReservedTokensListValInPercentageDecimals(token.reservedTokensDestinations(j));
+      uint percentsOfTokensUnit = token.getReservedPercentageUnit(reservedAddrForPercents);
+      uint percentsOfTokensDecimals = token.getReservedPercentageDecimals(reservedAddrForPercents);
       if (percentsOfTokensUnit > 0) {
         allocatedBonusInPercentage = tokensSold * percentsOfTokensUnit / 10**percentsOfTokensDecimals / 100;
-        tokensSold = tokensSold.plus(allocatedBonusInPercentage);
-        token.mint(token.reservedTokensDestinations(j), allocatedBonusInPercentage);
+        token.mint(reservedAddrForPercents, allocatedBonusInPercentage);
       }
     }
 
     // move reserved tokens in tokens
-    for (var i = 0; i < token.reservedTokensDestinationsLen(); i++) {
-      uint allocatedBonusInTokens = token.getReservedTokensListValInTokens(token.reservedTokensDestinations(i));
+    for (uint256 i = 0; i < token.reservedTokensDestinationsLen(); i++) {
+      address reservedAddrForTokens = token.reservedTokensDestinations(i);
+      uint allocatedBonusInTokens = token.getReservedTokens(reservedAddrForTokens);
       if (allocatedBonusInTokens > 0) {
-        tokensSold = tokensSold.plus(allocatedBonusInTokens);
-        token.mint(token.reservedTokensDestinations(i), allocatedBonusInTokens);
+        token.mint(reservedAddrForTokens, allocatedBonusInTokens);
       }
     }
 

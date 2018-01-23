@@ -81,7 +81,18 @@ module.exports = function(deployer, network, accounts) {
 	    	//let inTokensPercentage = [];
 	    	//inTokensPercentage.push(constants.reservedTokens.reservedTokensInPercentage);
 	    	//instance.setReservedTokensListMultiple(addrs, inTokens, inTokensPercentage);
-	    	await instance.setReservedTokensList(accounts[2], constants.reservedTokens.reservedTokensInTokens, constants.reservedTokens.reservedTokensInPercentageUnit, constants.reservedTokens.reservedTokensInPercentageDecimals);
+	    	await instance.setReservedTokensList(
+	    		accounts[2], 
+	    		constants.reservedTokens.number, 
+	    		constants.reservedTokens.percentageUnit, 
+	    		constants.reservedTokens.percentageDecimals
+	    	);
+	    	await instance.setReservedTokensList(
+	    		accounts[4], 
+	    		constants.reservedTokens2.number, 
+	    		constants.reservedTokens2.percentageUnit, 
+	    		constants.reservedTokens2.percentageDecimals
+	    	);
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
@@ -107,7 +118,18 @@ module.exports = function(deployer, network, accounts) {
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {
-	    	await instance.setEarlyParticipantWhitelist(accounts[2], constants.whiteListItem.status, constants.whiteListItem.minCap, constants.whiteListItem.maxCap);
+	    	await instance.setEarlyParticipantWhitelist(
+	    		accounts[2], 
+	    		constants.whiteListItem.status, 
+	    		constants.whiteListItem.minCap, 
+	    		constants.whiteListItem.maxCap
+	    	);
+	    	await instance.setEarlyParticipantWhitelist(
+	    		accounts[4], 
+	    		constants.whiteListItem.status, 
+	    		constants.whiteListItem.minCap, 
+	    		constants.whiteListItem.maxCap
+	    	);
 	    });
 
 	    await MintedTokenCappedCrowdsaleExt.deployed().then(async (instance) => {

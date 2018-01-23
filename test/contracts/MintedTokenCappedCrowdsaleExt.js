@@ -96,7 +96,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 
 	balanceOfMultisigInitial = web3.eth.getBalance(accounts[3]);
 
-	it("should accept buy from whitelisted user within cap range", function() {
+	it("should accept buy from whitelisted user 1 within cap range", function() {
 		weiToSend1 = parseInt(constants.investments[2]*constants.rate, 10);
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 	    	return instance.buy({from: accounts[2], value: weiToSend1});
@@ -112,6 +112,24 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	it("should return updated balance of multisig", function() {
 		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
 		assert.equal(balanceOfMultisigUpdated, parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10), "balance of multisig should be increased to invested value");
+	});
+
+	it("should accept buy from whitelisted user 2 within cap range", function() {
+		weiToSend1 = parseInt(constants.investments[2]*constants.rate, 10);
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+	    	return instance.buy({from: accounts[4], value: weiToSend1});
+	    }).then(function(res) {
+	    	if (res.receipt.blockNumber > 0) {
+	    		assert.isOk('everything', 'investment is passed');
+	    	} else {
+	    		assert.isOk(false, 'investment will fall');
+	    	}
+	    });
+	});
+
+	it("should return updated balance of multisig", function() {
+		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
+		assert.equal(balanceOfMultisigUpdated, parseInt(balanceOfMultisigInitial, 10) + 2 * parseInt(weiToSend1, 10), "balance of multisig should be increased to invested value");
 	});
 
 	it("should return token's balance we have bought in previous step", function() {
@@ -137,7 +155,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 
 	it("should return updated balance of multisig", function() {
 		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
-		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10)), "balance of multisig should be increased to invested value");
+		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + 2 * parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10)), "balance of multisig should be increased to invested value");
 	});
 
 	it("should accept buy of fractionated amount of tokens from whitelisted user within cap range", function() {
@@ -163,7 +181,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 
 	it("should return updated balance of multisig", function() {
 		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
-		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10) + parseInt(weiToSend3, 10)), "balance of multisig should be increased to invested value");
+		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + 2 * parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10) + parseInt(weiToSend3, 10)), "balance of multisig should be increased to invested value");
 	});
 
 	it("shouldn't accept investment from whitelisted user that exceeds maxCap", function() {
@@ -181,7 +199,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 			return instance.whitelistedParticipantsLength.call();
 	    }).then(function(whitelistedParticipantsLength) {
-	    	assert.equal(whitelistedParticipantsLength, 1, 'should have 1 whitelisted participant');
+	    	assert.equal(whitelistedParticipantsLength, 2, 'should have 2 whitelisted participants');
 	    });
 	});
 
@@ -287,14 +305,27 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    });
 	});
 
-	it("should return updated token balance of user include reserved tokens", function() {
+	let user1Investment = (constants.investments[2] + constants.investments[3] + constants.investments[4]) * 10**constants.token.decimals
+	let user2Investment = (constants.investments[2]) * 10**constants.token.decimals
+	let usersInvestment = user1Investment + user2Investment
+
+	it("should return updated token balance of user 1 include reserved tokens", function() {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
 	    	return instance.balanceOf.call(accounts[2]);
 	    }).then(function(tokenBalance) {
-	    	let tokenBalancePattern = (constants.investments[2] + constants.investments[3] + constants.investments[4])*10**constants.token.decimals
-	    	tokenBalancePattern += tokenBalancePattern*constants.reservedTokens.reservedTokensInPercentageUnit/10**constants.reservedTokens.reservedTokensInPercentageDecimals/100;
-			tokenBalancePattern += constants.reservedTokens.reservedTokensInTokens;
-	    	assert.equal(tokenBalance, tokenBalancePattern, "balance of investor should be equal the total value we bought before + reserved tokens");
+	    	let tokenBalancePattern = user1Investment + usersInvestment * constants.reservedTokens.percentageUnit / 10**constants.reservedTokens.percentageDecimals / 100;
+			tokenBalancePattern += constants.reservedTokens.number;
+			assert.equal(tokenBalance, tokenBalancePattern, "balance of investor 1 should be equal the total value we bought before + reserved tokens");
+	    });
+	});
+
+	it("should return updated token balance of user 2 include reserved tokens", function() {
+		return CrowdsaleTokenExt.deployed().then(function(instance) {
+	    	return instance.balanceOf.call(accounts[4]);
+	    }).then(function(tokenBalance) {
+	    	tokenBalancePattern = user2Investment +  usersInvestment * constants.reservedTokens2.percentageUnit / 10**constants.reservedTokens2.percentageDecimals / 100;
+			tokenBalancePattern += constants.reservedTokens2.number;
+			assert.equal(tokenBalance, tokenBalancePattern, "balance of investor 2 should be equal reserved tokens");
 	    });
 	});
 
