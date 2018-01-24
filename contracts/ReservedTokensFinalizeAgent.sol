@@ -39,24 +39,21 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
     // How many % of tokens the founders and others get
     uint tokensSold = crowdsale.tokensSold();
 
-    // move reserved tokens in percentage
+    // move reserved tokens
     for (uint256 j = 0; j < token.reservedTokensDestinationsLen(); j++) {
-      address reservedAddrForPercents = token.reservedTokensDestinations(j);
+      address reservedAddr = token.reservedTokensDestinations(j);
       uint allocatedBonusInPercentage;
-      uint percentsOfTokensUnit = token.getReservedPercentageUnit(reservedAddrForPercents);
-      uint percentsOfTokensDecimals = token.getReservedPercentageDecimals(reservedAddrForPercents);
+      uint allocatedBonusInTokens = token.getReservedTokens(reservedAddr);
+      uint percentsOfTokensUnit = token.getReservedPercentageUnit(reservedAddr);
+      uint percentsOfTokensDecimals = token.getReservedPercentageDecimals(reservedAddr);
+
       if (percentsOfTokensUnit > 0) {
         allocatedBonusInPercentage = tokensSold * percentsOfTokensUnit / 10**percentsOfTokensDecimals / 100;
-        token.mint(reservedAddrForPercents, allocatedBonusInPercentage);
+        token.mint(reservedAddr, allocatedBonusInPercentage);
       }
-    }
 
-    // move reserved tokens in tokens
-    for (uint256 i = 0; i < token.reservedTokensDestinationsLen(); i++) {
-      address reservedAddrForTokens = token.reservedTokensDestinations(i);
-      uint allocatedBonusInTokens = token.getReservedTokens(reservedAddrForTokens);
       if (allocatedBonusInTokens > 0) {
-        token.mint(reservedAddrForTokens, allocatedBonusInTokens);
+        token.mint(reservedAddr, allocatedBonusInTokens);
       }
     }
 

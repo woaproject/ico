@@ -309,24 +309,20 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	let user2Investment = (constants.investments[2]) * 10**constants.token.decimals
 	let usersInvestment = user1Investment + user2Investment
 
-	it("should return updated token balance of user 1 include reserved tokens", function() {
-		return CrowdsaleTokenExt.deployed().then(function(instance) {
-	    	return instance.balanceOf.call(accounts[2]);
-	    }).then(function(tokenBalance) {
-	    	let tokenBalancePattern = user1Investment + usersInvestment * constants.reservedTokens.percentageUnit / 10**constants.reservedTokens.percentageDecimals / 100;
-			tokenBalancePattern += constants.reservedTokens.number;
-			assert.equal(tokenBalance, tokenBalancePattern, "balance of investor 1 should be equal the total value we bought before + reserved tokens");
-	    });
+	it("should return updated token balance of user 1 including reserved tokens", async () => {
+		let instance = await CrowdsaleTokenExt.deployed();
+		let tokenBalance  = await instance.balanceOf.call(accounts[2]);
+		let tokenBalancePattern = user1Investment + usersInvestment * constants.reservedTokens.percentageUnit / 10**constants.reservedTokens.percentageDecimals / 100;
+		tokenBalancePattern += constants.reservedTokens.number;
+		assert.equal(tokenBalance, tokenBalancePattern, "balance of investor 1 should be equal the total value we bought before + reserved tokens");
 	});
 
-	it("should return updated token balance of user 2 include reserved tokens", function() {
-		return CrowdsaleTokenExt.deployed().then(function(instance) {
-	    	return instance.balanceOf.call(accounts[4]);
-	    }).then(function(tokenBalance) {
-	    	tokenBalancePattern = user2Investment +  usersInvestment * constants.reservedTokens2.percentageUnit / 10**constants.reservedTokens2.percentageDecimals / 100;
-			tokenBalancePattern += constants.reservedTokens2.number;
-			assert.equal(tokenBalance, tokenBalancePattern, "balance of investor 2 should be equal reserved tokens");
-	    });
+	it("should return updated token balance of user 2 including reserved tokens", async () => {
+		let instance = await CrowdsaleTokenExt.deployed();
+		let tokenBalance  = await instance.balanceOf.call(accounts[4]);
+		let tokenBalancePattern = user2Investment +  usersInvestment * constants.reservedTokens2.percentageUnit / 10**constants.reservedTokens2.percentageDecimals / 100;
+		tokenBalancePattern += constants.reservedTokens2.number;
+		assert.equal(tokenBalance, tokenBalancePattern, "balance of investor 2 should be equal reserved tokens");
 	});
 
 	it("should get name of crowdsale", function() {
