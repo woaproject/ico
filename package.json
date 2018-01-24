@@ -1,7 +1,7 @@
 {
   "name": "oracles-tokenmarket-ico",
-  "version": "1.0.0",
-  "description": "Updated tokenmarket ico contracts for Oracles ICO wizard",
+  "version": "2.0.0",
+  "description": "Updated tokenmarket ico contracts for POA Network ICO wizard",
   "main": "migrations/2_deploy_contracts.js",
   "directories": {
     "doc": "docs"
@@ -13,13 +13,15 @@
     "type": "git",
     "url": "git+https://github.com/vbaranov/ico.git"
   },
-  "author": "Oracles",
+  "author": "POA Network",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/vbaranov/ico/issues"
   },
   "homepage": "https://github.com/vbaranov/ico#readme",
   "dependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
     "truffle": "^3.4.11",
     "truffle-contract": "^3.0.0",
     "web3": "^0.19.1"

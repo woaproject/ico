@@ -39,6 +39,7 @@ contract MintableTokenExt is StandardToken, Ownable {
     uint inPercentageUnit;
     uint inPercentageDecimals;
     bool isReserved;
+    bool isDistributed;
   }
 
   mapping (address => ReservedTokensData) public reservedTokensList;
@@ -47,7 +48,7 @@ contract MintableTokenExt is StandardToken, Ownable {
 
   function setReservedTokensList(address addr, uint inTokens, uint inPercentageUnit, uint inPercentageDecimals) canMint onlyOwner {
     assert(addr != address(0));
-    if (!reservedTokensList[addr].isReserved) {
+    if (!isAddressReserved(addr)) {
       reservedTokensDestinations.push(addr);
       reservedTokensDestinationsLen++;
     }
@@ -56,8 +57,22 @@ contract MintableTokenExt is StandardToken, Ownable {
       inTokens: inTokens, 
       inPercentageUnit: inPercentageUnit, 
       inPercentageDecimals: inPercentageDecimals,
-      isReserved: true
+      isReserved: true,
+      isDistributed: false
     });
+  }
+
+  function finalizeReservedAddress(address addr) onlyMintAgent canMint {
+    ReservedTokensData storage reservedTokensData = reservedTokensList[addr];
+    reservedTokensData.isDistributed = true;
+  }
+
+  function isAddressReserved(address addr) constant returns (bool isReserved) {
+    return reservedTokensList[addr].isReserved;
+  }
+
+  function areTokensDistributedForAddress(address addr) constant returns (bool isDistributed) {
+    return reservedTokensList[addr].isDistributed;
   }
 
   function getReservedTokens(address addr) constant returns (uint inTokens) {

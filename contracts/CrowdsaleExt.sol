@@ -387,6 +387,18 @@ contract CrowdsaleExt is Haltable {
     invest(msg.sender);
   }
 
+  function distributeReservedTokens(uint reservedTokensDistributionBatch) public inState(State.Success) onlyOwner stopInEmergency {
+    // Already finalized
+    if(finalized) {
+      throw;
+    }
+
+    // Finalizing is optional. We only call it if we are given a finalizing agent.
+    if(address(finalizeAgent) != 0) {
+      finalizeAgent.distributeReservedTokens(reservedTokensDistributionBatch);
+    }
+  }
+
   /**
    * Finalize a succcesful crowdsale.
    *

@@ -27,6 +27,9 @@ contract NullFinalizeAgentExt is FinalizeAgent {
     return true;
   }
 
+  function distributeReservedTokens(uint reservedTokensDistributionBatch) public {
+  }
+
   /** Called once by crowdsale finalize() if the sale was success. */
   function finalizeCrowdsale() public {
   }
