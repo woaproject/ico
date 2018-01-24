@@ -45,8 +45,9 @@ contract MintableTokenExt is StandardToken, Ownable {
   mapping (address => ReservedTokensData) public reservedTokensList;
   address[] public reservedTokensDestinations;
   uint public reservedTokensDestinationsLen = 0;
+  bool reservedTokensDestinationsAreSet = false;
 
-  function setReservedTokensList(address addr, uint inTokens, uint inPercentageUnit, uint inPercentageDecimals) canMint onlyOwner {
+  function setReservedTokensList(address addr, uint inTokens, uint inPercentageUnit, uint inPercentageDecimals) private canMint onlyOwner {
     assert(addr != address(0));
     if (!isAddressReserved(addr)) {
       reservedTokensDestinations.push(addr);
@@ -88,11 +89,13 @@ contract MintableTokenExt is StandardToken, Ownable {
   }
 
   function setReservedTokensListMultiple(address[] addrs, uint[] inTokens, uint[] inPercentageUnit, uint[] inPercentageDecimals) canMint onlyOwner {
+    assert(!reservedTokensDestinationsAreSet);
     for (uint iterator = 0; iterator < addrs.length; iterator++) {
       if (addrs[iterator] != address(0)) {
         setReservedTokensList(addrs[iterator], inTokens[iterator], inPercentageUnit[iterator], inPercentageDecimals[iterator]);
       }
     }
+    reservedTokensDestinationsAreSet = true;
   }
 
   /**

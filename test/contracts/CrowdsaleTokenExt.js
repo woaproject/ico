@@ -2,10 +2,22 @@ const CrowdsaleTokenExt = artifacts.require("./CrowdsaleTokenExt.sol");
 const MintedTokenCappedCrowdsaleExt = artifacts.require("./MintedTokenCappedCrowdsaleExt.sol");
 const NullFinalizeAgentExt = artifacts.require("./NullFinalizeAgentExt.sol");
 const ReservedTokensFinalizeAgent = artifacts.require("./ReservedTokensFinalizeAgent.sol");
+const ERROR_MSG = 'VM Exception while processing transaction: invalid opcode';
 
 const constants = require("../constants");
 
 contract('CrowdsaleTokenExt', function(accounts) {
+
+	it('should reject setReservedTokensListMultiple another call', async () => {
+		let crowdsaleTokenExt = await CrowdsaleTokenExt.deployed();
+		await crowdsaleTokenExt.setReservedTokensListMultiple(
+			[accounts[2]], 
+	  		[constants.reservedTokens.number], 
+	  		[constants.reservedTokens.percentageUnit,], 
+	  		[constants.reservedTokens.percentageDecimals]
+  		).should.be.rejectedWith(ERROR_MSG);
+	})
+
 	it("should get number of reserved tokens for investor", function() {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
 	    	return instance.getReservedTokens.call(accounts[2]);
