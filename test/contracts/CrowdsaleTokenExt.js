@@ -2,31 +2,43 @@ const CrowdsaleTokenExt = artifacts.require("./CrowdsaleTokenExt.sol");
 const MintedTokenCappedCrowdsaleExt = artifacts.require("./MintedTokenCappedCrowdsaleExt.sol");
 const NullFinalizeAgentExt = artifacts.require("./NullFinalizeAgentExt.sol");
 const ReservedTokensFinalizeAgent = artifacts.require("./ReservedTokensFinalizeAgent.sol");
+const ERROR_MSG = 'VM Exception while processing transaction: invalid opcode';
 
 const constants = require("../constants");
 
 contract('CrowdsaleTokenExt', function(accounts) {
-	it("should get absolute reserved tokens for investor", function() {
+
+	it('should reject setReservedTokensListMultiple another call', async () => {
+		let crowdsaleTokenExt = await CrowdsaleTokenExt.deployed();
+		await crowdsaleTokenExt.setReservedTokensListMultiple(
+			[accounts[2]], 
+	  		[constants.reservedTokens.number], 
+	  		[constants.reservedTokens.percentageUnit,], 
+	  		[constants.reservedTokens.percentageDecimals]
+  		).should.be.rejectedWith(ERROR_MSG);
+	})
+
+	it("should get number of reserved tokens for investor", function() {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
-	    	return instance.getReservedTokensListValInTokens.call(accounts[2]);
+	    	return instance.getReservedTokens.call(accounts[2]);
 	    }).then(function(res) {
-	    	assert.equal(res, constants.reservedTokens.reservedTokensInTokens, "`getReservedTokensListValInTokens` method returns absolute investor's reserved tokens");
+	    	assert.equal(res, constants.reservedTokens.number, "`getReservedTokens` method returns absolute investor's reserved tokens");
 	    });
 	});
 
 	it("should get reserved tokens in percentage unit for investor", function() {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
-	    	return instance.getReservedTokensListValInPercentageUnit.call(accounts[2]);
+	    	return instance.getReservedPercentageUnit.call(accounts[2]);
 	    }).then(function(res) {
-	    	assert.equal(res, constants.reservedTokens.reservedTokensInPercentageUnit, "`getReservedTokensListValInPercentageUnit` method returns investor's reserved tokens in percentage unit");
+	    	assert.equal(res, constants.reservedTokens.percentageUnit, "`getReservedPercentageUnit` method returns investor's reserved tokens in percentage unit");
 	    });
 	});
 
 	it("should get percentage decimals for reserved tokens", function() {
 		return CrowdsaleTokenExt.deployed().then(function(instance) {
-	    	return instance.getReservedTokensListValInPercentageDecimals.call(accounts[2]);
+	    	return instance.getReservedPercentageDecimals.call(accounts[2]);
 	    }).then(function(res) {
-	    	assert.equal(res, constants.reservedTokens.reservedTokensInPercentageDecimals, "`getReservedTokensListValInPercentageDecimals` method returns percentage decimals for investor's reserved tokens");
+	    	assert.equal(res, constants.reservedTokens.percentageDecimals, "`getReservedPercentageDecimals` method returns percentage decimals for investor's reserved tokens");
 	    });
 	});
 

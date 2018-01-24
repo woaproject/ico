@@ -55,13 +55,24 @@ contract MintedTokenCappedCrowdsaleExt is CrowdsaleExt {
 
   function setMaximumSellableTokens(uint tokens) onlyOwner {
     if (finalized) throw;
-
     if (!isUpdatable) throw;
+    if (now >= startsAt) throw;
 
-    CrowdsaleExt lastCrowdsaleCntrct = CrowdsaleExt(lastCrowdsale);
-    if (lastCrowdsaleCntrct.finalized()) throw;
+    CrowdsaleExt lastTierCntrct = CrowdsaleExt(lastTier);
+    if (lastTierCntrct.finalized()) throw;
 
     maximumSellableTokens = tokens;
     MaximumSellableTokensChanged(maximumSellableTokens);
+  }
+
+  function updateRate(uint newOneTokenInWei) onlyOwner {
+    if (finalized) throw;
+    if (!isUpdatable) throw;
+    if (now >= startsAt) throw;
+
+    CrowdsaleExt lastTierCntrct = CrowdsaleExt(lastTier);
+    if (lastTierCntrct.finalized()) throw;
+
+    pricingStrategy.updateRate(newOneTokenInWei);
   }
 }

@@ -1,7 +1,7 @@
 const utils = require("./utils");
 
 const token = {
-  "ticker": "MTK",
+  "ticker": "MYTKO",
   "name": "MyToken",
   "decimals": 18,
   "supply": 0,
@@ -10,15 +10,23 @@ const token = {
 };
 
 const reservedTokens = {
-  reservedTokensInTokens: utils.toFixed(10*10**token.decimals),
-  reservedTokensInPercentageUnit: 20,
-  reservedTokensInPercentageDecimals: 0
+  number: utils.toFixed(10 * 10**token.decimals),
+  percentageUnit: 205,
+  percentageDecimals: 1,
+  isReserved: true
+};
+
+const reservedTokens2 = {
+  number: utils.toFixed(15 * 10**token.decimals),
+  percentageUnit: 30,
+  percentageDecimals: 0,
+  isReserved: true
 };
 
 const whiteListItem = {
   status: true,
-  minCap: utils.toFixed(1*10**token.decimals),
-  maxCap: utils.toFixed(10*10**token.decimals),
+  minCap: utils.toFixed(1 * 10**token.decimals),
+  maxCap: utils.toFixed(10 * 10**token.decimals),
 };
 
 const investments = [0.5, 11, 1, 0.5, 5.5, 4];
@@ -31,7 +39,7 @@ const crowdsale = {
   "start": startCrowdsale,
   "end": endCrowdsale,
   "minimumFundingGoal": 0,
-  "maximumSellableTokens": utils.toFixed(1000*10**token.decimals),
+  "maximumSellableTokens": utils.toFixed(1000 * 10**token.decimals),
   "isUpdatable": true,
   "isWhiteListed": true
 }
@@ -41,10 +49,11 @@ const pricingStrategy = {
 };
 
 module.exports = {
-  token: token,
-  reservedTokens: reservedTokens,
-  investments: investments,
-  whiteListItem: whiteListItem,
-  crowdsale: crowdsale,
-  pricingStrategy: pricingStrategy
+  token,
+  reservedTokens,
+  reservedTokens2,
+  investments,
+  whiteListItem,
+  crowdsale,
+  pricingStrategy
 }

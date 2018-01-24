@@ -38,40 +38,64 @@ contract MintableTokenExt is StandardToken, Ownable {
     uint inTokens;
     uint inPercentageUnit;
     uint inPercentageDecimals;
+    bool isReserved;
+    bool isDistributed;
   }
 
   mapping (address => ReservedTokensData) public reservedTokensList;
   address[] public reservedTokensDestinations;
   uint public reservedTokensDestinationsLen = 0;
+  bool reservedTokensDestinationsAreSet = false;
 
-  function setReservedTokensList(address addr, uint inTokens, uint inPercentageUnit, uint inPercentageDecimals) canMint onlyOwner {
+  function setReservedTokensList(address addr, uint inTokens, uint inPercentageUnit, uint inPercentageDecimals) private canMint onlyOwner {
     assert(addr != address(0));
-    if (reservedTokensList[addr].inTokens == 0 && reservedTokensList[addr].inPercentageUnit == 0) {
+    if (!isAddressReserved(addr)) {
       reservedTokensDestinations.push(addr);
       reservedTokensDestinationsLen++;
     }
 
-    reservedTokensList[addr] = ReservedTokensData({inTokens:inTokens, inPercentageUnit:inPercentageUnit, inPercentageDecimals: inPercentageDecimals});
+    reservedTokensList[addr] = ReservedTokensData({
+      inTokens: inTokens, 
+      inPercentageUnit: inPercentageUnit, 
+      inPercentageDecimals: inPercentageDecimals,
+      isReserved: true,
+      isDistributed: false
+    });
   }
 
-  function getReservedTokensListValInTokens(address addr) constant returns (uint inTokens) {
+  function finalizeReservedAddress(address addr) onlyMintAgent canMint {
+    ReservedTokensData storage reservedTokensData = reservedTokensList[addr];
+    reservedTokensData.isDistributed = true;
+  }
+
+  function isAddressReserved(address addr) constant returns (bool isReserved) {
+    return reservedTokensList[addr].isReserved;
+  }
+
+  function areTokensDistributedForAddress(address addr) constant returns (bool isDistributed) {
+    return reservedTokensList[addr].isDistributed;
+  }
+
+  function getReservedTokens(address addr) constant returns (uint inTokens) {
     return reservedTokensList[addr].inTokens;
   }
 
-  function getReservedTokensListValInPercentageUnit(address addr) constant returns (uint inPercentageUnit) {
+  function getReservedPercentageUnit(address addr) constant returns (uint inPercentageUnit) {
     return reservedTokensList[addr].inPercentageUnit;
   }
 
-  function getReservedTokensListValInPercentageDecimals(address addr) constant returns (uint inPercentageDecimals) {
+  function getReservedPercentageDecimals(address addr) constant returns (uint inPercentageDecimals) {
     return reservedTokensList[addr].inPercentageDecimals;
   }
 
   function setReservedTokensListMultiple(address[] addrs, uint[] inTokens, uint[] inPercentageUnit, uint[] inPercentageDecimals) canMint onlyOwner {
+    assert(!reservedTokensDestinationsAreSet);
     for (uint iterator = 0; iterator < addrs.length; iterator++) {
       if (addrs[iterator] != address(0)) {
         setReservedTokensList(addrs[iterator], inTokens[iterator], inPercentageUnit[iterator], inPercentageDecimals[iterator]);
       }
     }
+    reservedTokensDestinationsAreSet = true;
   }
 
   /**

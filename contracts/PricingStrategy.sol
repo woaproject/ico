@@ -11,6 +11,8 @@ pragma solidity ^0.4.6;
  */
 contract PricingStrategy {
 
+  address public tier;
+
   /** Interface declaration. */
   function isPricingStrategy() public constant returns (bool) {
     return true;
@@ -32,6 +34,9 @@ contract PricingStrategy {
   function isPresalePurchase(address purchaser) public constant returns (bool) {
     return false;
   }
+
+  /* How many weis one token costs */
+  function updateRate(uint newOneTokenInWei) public;
 
   /**
    * When somebody tries to buy tokens for X eth, calculate how many tokens they get.

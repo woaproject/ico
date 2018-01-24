@@ -4,6 +4,12 @@ const ReservedTokensFinalizeAgent = artifacts.require("./ReservedTokensFinalizeA
 const FlatPricingExt = artifacts.require("./FlatPricingExt.sol");
 const constants = require("../constants");
 const utils = require("../utils");
+const ERROR_MSG = 'VM Exception while processing transaction: invalid opcode';
+
+require('chai')
+  .use(require('chai-as-promised'))
+  .use(require('chai-bignumber')(web3.BigNumber))
+  .should();
 
 let balanceOfMultisigInitial = 0;
 let weiToSend1 = 0; //weiToSend in 1st success investment;
@@ -11,22 +17,50 @@ let weiToSend2 = 0; //weiToSend in 2nd success investment;
 let weiToSend3 = 0; //weiToSend in 3d success investment;
 
 contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
-	it("should get last crowdsale tier for crowdsale contract", function() {
+	it("should get last tier tier for crowdsale contract", function() {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.lastCrowdsale.call();
+	    	return instance.lastTier.call();
 	    }).then(function(res) {
-	      assert.equal(res, MintedTokenCappedCrowdsaleExt.address, "`lastCrowdsale` property of Crowdsale contract is equal MintedTokenCappedCrowdsaleExt address");
+	      assert.equal(res, MintedTokenCappedCrowdsaleExt.address, "`lastTier` property of Crowdsale contract is equal MintedTokenCappedCrowdsaleExt address");
 	    });
 	});
 
-	//todo
-	/*it("should get joinedCrowdsales item for crowdsale contract", function() {
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.joinedCrowdsales.call(0);
-	    }).then(function(res) {
-	    	console.log(res);
-	      assert.equal(res, MintedTokenCappedCrowdsaleExt.address, "`joinedCrowdsales[0]` property of Crowdsale contract is equal MintedTokenCappedCrowdsaleExt address");
-	    });
+	it("shouldn't update rate", async () => {
+    	let newRate = 10**18 / 2000;
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	let flatPricingExt = await FlatPricingExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.updateRate(newRate).should.be.rejectedWith(ERROR_MSG);;
+	});
+
+	it("shouldn't update max cap", async () => {
+    	let newMaxCap = 200000000 * 10**18;
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.setMaximumSellableTokens(newMaxCap).should.be.rejectedWith(ERROR_MSG);;
+	});
+
+	/*it("should update rate", async () => {
+    	let newRate = 10**18 / 2000;
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	let flatPricingExt = await FlatPricingExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.updateRate(newRate);
+    	let rate = await flatPricingExt.oneTokenInWei.call();
+    	rate.should.be.bignumber.equal(newRate);
+	});
+
+	it("should update max cap", async () => {
+    	let newMaxCap = 200000000 * 10**18;
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.setMaximumSellableTokens(newMaxCap);
+    	let maxCap = await mintedTokenCappedCrowdsaleExt.maximumSellableTokens.call();
+    	maxCap.should.be.bignumber.equal(newMaxCap);
+	});
+
+	it("should update startsAt", async () => {
+		let newStartsAt = parseInt(new Date().getTime()/1000);
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.setStartsAt(newStartsAt);
+    	let startsAt = await mintedTokenCappedCrowdsaleExt.startsAt.call();
+    	startsAt.should.be.bignumber.equal(newStartsAt);
 	});*/
 
 	it("should get finalize agent", function() {
@@ -66,7 +100,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 	    	return instance.buy({from: accounts[1], value: weiToSend});
 	    }).then(function(res) {
-	    	assert.isOk(false, 'investment willn`t fall');
+	    	assert.isOk(false, 'investment won`t fall');
 	    }, function(err) {
 	    	assert.isOk('everything', 'investment is not passed');
 	    });
@@ -77,7 +111,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 			return instance.buy({from: accounts[2], value: weiToSend});
 	    }).then(function(res) {
-	    	assert.isOk(false, 'investment willn`t fall');
+	    	assert.isOk(false, 'investment won`t fall');
 	    }, function(err) {
 	    	assert.isOk('everything', 'investment less than minCap for investor is not allowed');
 	    });
@@ -88,7 +122,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 			return instance.buy({from: accounts[2], value: weiToSend});
 	    }).then(function(res) {
-	    	assert.isOk(false, 'investment willn`t fall');
+	    	assert.isOk(false, 'investment won`t fall');
 	    }, function(err) {
 	    	assert.isOk('everything', 'investment is greater than maxCap for investor is not allowed');
 	    });
@@ -96,7 +130,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 
 	balanceOfMultisigInitial = web3.eth.getBalance(accounts[3]);
 
-	it("should accept buy from whitelisted user within cap range", function() {
+	it("should accept buy from whitelisted user 1 within cap range", function() {
 		weiToSend1 = parseInt(constants.investments[2]*constants.rate, 10);
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 	    	return instance.buy({from: accounts[2], value: weiToSend1});
@@ -112,6 +146,24 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	it("should return updated balance of multisig", function() {
 		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
 		assert.equal(balanceOfMultisigUpdated, parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10), "balance of multisig should be increased to invested value");
+	});
+
+	it("should accept buy from whitelisted user 2 within cap range", function() {
+		weiToSend1 = parseInt(constants.investments[2]*constants.rate, 10);
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+	    	return instance.buy({from: accounts[4], value: weiToSend1});
+	    }).then(function(res) {
+	    	if (res.receipt.blockNumber > 0) {
+	    		assert.isOk('everything', 'investment is passed');
+	    	} else {
+	    		assert.isOk(false, 'investment will fall');
+	    	}
+	    });
+	});
+
+	it("should return updated balance of multisig", function() {
+		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
+		assert.equal(balanceOfMultisigUpdated, parseInt(balanceOfMultisigInitial, 10) + 2 * parseInt(weiToSend1, 10), "balance of multisig should be increased to invested value");
 	});
 
 	it("should return token's balance we have bought in previous step", function() {
@@ -137,7 +189,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 
 	it("should return updated balance of multisig", function() {
 		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
-		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10)), "balance of multisig should be increased to invested value");
+		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + 2 * parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10)), "balance of multisig should be increased to invested value");
 	});
 
 	it("should accept buy of fractionated amount of tokens from whitelisted user within cap range", function() {
@@ -163,7 +215,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 
 	it("should return updated balance of multisig", function() {
 		let balanceOfMultisigUpdated = web3.eth.getBalance(accounts[3]);
-		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10) + parseInt(weiToSend3, 10)), "balance of multisig should be increased to invested value");
+		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + 2 * parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10) + parseInt(weiToSend3, 10)), "balance of multisig should be increased to invested value");
 	});
 
 	it("shouldn't accept investment from whitelisted user that exceeds maxCap", function() {
@@ -171,7 +223,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 			return instance.buy({from: accounts[2], value: weiToSend});
 	    }).then(function(res) {
-	    	assert.isOk(false, 'investment willn`t fall');
+	    	assert.isOk(false, 'investment won`t fall');
 	    }, function(err) {
 	    	assert.isOk('everything', 'investment is greater than maxCap in total for investor is not allowed');
 	    });
@@ -181,7 +233,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 			return instance.whitelistedParticipantsLength.call();
 	    }).then(function(whitelistedParticipantsLength) {
-	    	assert.equal(whitelistedParticipantsLength, 1, 'should have 1 whitelisted participant');
+	    	assert.equal(whitelistedParticipantsLength, 2, 'should have 2 whitelisted participants');
 	    });
 	});
 
@@ -255,13 +307,14 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
         });
     })
 
+
 	it("should set endsAt for crowdsale", function() {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
 	    	return instance.setEndsAt(parseInt((new Date()).getTime()/1000, {from: accounts[0]}));
 	    }).then(function(res) {
 	    	assert.isOk('everything', 'Set of endsAt is failed');
 	    }, function(err) {
-	    	assert.isOk(false, 'Set of endsAt willn`t fall');
+	    	assert.isOk(false, 'Set of endsAt won`t fall');
 	    });
 	});
 
@@ -275,6 +328,71 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		});
 	}
 
+	it("should fail finalize", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		await mintedTokenCappedCrowdsaleExt.finalize().should.be.rejectedWith(ERROR_MSG);
+	});
+
+	it("should fail distribution of reserved tokens with 0 batch", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		await mintedTokenCappedCrowdsaleExt.distributeReservedTokens(0).should.be.rejectedWith(ERROR_MSG);
+	});
+
+	it("should distribute reserved tokens", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+			return instance.distributeReservedTokens(1);
+	    }).then(function(res) {
+	    	assert.isOk('everything', 'DistributeReservedTokens is failed');
+	    }, function(err) {
+	    	console.log(err);
+	    	assert.isOk(false, 'DistributeReservedTokens won`t fall');
+	    });
+	});
+
+	it("should return that reserved tokens are distributed for one address", async () => {
+		let reservedTokensFinalizeAgent = await ReservedTokensFinalizeAgent.deployed();
+		let distributedReservedTokensDestinationsLen  = await reservedTokensFinalizeAgent.distributedReservedTokensDestinationsLen.call();
+		assert.equal(distributedReservedTokensDestinationsLen, 1, "reserved tokens should be distributed for one address");
+	});
+
+	it("should return that not all reserved tokens are distributed", async () => {
+		let reservedTokensFinalizeAgent = await ReservedTokensFinalizeAgent.deployed();
+		let reservedTokensAreDistributed  = await reservedTokensFinalizeAgent.reservedTokensAreDistributed.call();
+		assert.equal(reservedTokensAreDistributed, false, "not all reserved tokens should be distributed");
+	});
+
+	it("should fail finalize", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		await mintedTokenCappedCrowdsaleExt.finalize().should.be.rejectedWith(ERROR_MSG);
+	});
+
+	it("should distribute reserved tokens", function() {
+		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
+			return instance.distributeReservedTokens(1);
+	    }).then(function(res) {
+	    	assert.isOk('everything', 'DistributeReservedTokens is failed');
+	    }, function(err) {
+	    	console.log(err);
+	    	assert.isOk(false, 'DistributeReservedTokens won`t fall');
+	    });
+	});
+
+	it("should return that all reserved tokens are distributed", async () => {
+		let reservedTokensFinalizeAgent = await ReservedTokensFinalizeAgent.deployed();
+		let distributedReservedTokensDestinationsLen  = await reservedTokensFinalizeAgent.distributedReservedTokensDestinationsLen.call();
+		assert.equal(distributedReservedTokensDestinationsLen, 2, "distributedReservedTokensDestinationsLen should be equal 2");
+	});
+
+	it("should return that all reserved tokens are distributed", async () => {
+		let reservedTokensFinalizeAgent = await ReservedTokensFinalizeAgent.deployed();
+		let reservedTokensAreDistributed  = await reservedTokensFinalizeAgent.reservedTokensAreDistributed.call();
+		assert.equal(reservedTokensAreDistributed, true, "reservedTokensAreDistributed should be true");
+	});
+
+	it("should fail distribution of reserved tokens", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		await mintedTokenCappedCrowdsaleExt.distributeReservedTokens(1).should.be.rejectedWith(ERROR_MSG);
+	});
 
 	it("should finalize crowdsale", function() {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
@@ -283,19 +401,28 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    	assert.isOk('everything', 'Finalize is failed');
 	    }, function(err) {
 	    	console.log(err);
-	    	assert.isOk(false, 'Finalize willn`t fall');
+	    	assert.isOk(false, 'Finalize won`t fall');
 	    });
 	});
 
-	it("should return updated token balance of user include reserved tokens", function() {
-		return CrowdsaleTokenExt.deployed().then(function(instance) {
-	    	return instance.balanceOf.call(accounts[2]);
-	    }).then(function(tokenBalance) {
-	    	let tokenBalancePattern = (constants.investments[2] + constants.investments[3] + constants.investments[4])*10**constants.token.decimals
-	    	tokenBalancePattern += tokenBalancePattern*constants.reservedTokens.reservedTokensInPercentageUnit/10**constants.reservedTokens.reservedTokensInPercentageDecimals/100;
-			tokenBalancePattern += constants.reservedTokens.reservedTokensInTokens;
-	    	assert.equal(tokenBalance, tokenBalancePattern, "balance of investor should be equal the total value we bought before + reserved tokens");
-	    });
+	let user1Investment = (constants.investments[2] + constants.investments[3] + constants.investments[4]) * 10**constants.token.decimals
+	let user2Investment = (constants.investments[2]) * 10**constants.token.decimals
+	let usersInvestment = user1Investment + user2Investment
+
+	it("should return updated token balance of user 1 including reserved tokens", async () => {
+		let crowdsaleTokenExt = await CrowdsaleTokenExt.deployed();
+		let tokenBalance  = await crowdsaleTokenExt.balanceOf.call(accounts[2]);
+		let tokenBalancePattern = user1Investment + usersInvestment * constants.reservedTokens.percentageUnit / 10**constants.reservedTokens.percentageDecimals / 100;
+		tokenBalancePattern += constants.reservedTokens.number;
+		assert.equal(tokenBalance, tokenBalancePattern, "balance of investor 1 should be equal the total value we bought before + reserved tokens");
+	});
+
+	it("should return updated token balance of user 2 including reserved tokens", async () => {
+		let crowdsaleTokenExt = await CrowdsaleTokenExt.deployed();
+		let tokenBalance  = await crowdsaleTokenExt.balanceOf.call(accounts[4]);
+		let tokenBalancePattern = user2Investment +  usersInvestment * constants.reservedTokens2.percentageUnit / 10**constants.reservedTokens2.percentageDecimals / 100;
+		tokenBalancePattern += constants.reservedTokens2.number;
+		assert.equal(tokenBalance, tokenBalancePattern, "balance of investor 2 should be equal reserved tokens");
 	});
 
 	it("should get name of crowdsale", function() {

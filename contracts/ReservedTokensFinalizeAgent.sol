@@ -1,9 +1,3 @@
-/**
- * This smart contract code is Copyright 2017 TokenMarket Ltd. For more information see https://tokenmarket.net
- *
- * Licensed under the Apache License, version 2.0: https://github.com/TokenMarketNet/ico/blob/master/LICENSE.txt
- */
-
 pragma solidity ^0.4.6;
 
 import "./SafeMathLibExt.sol";
@@ -20,6 +14,9 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
   CrowdsaleTokenExt public token;
   CrowdsaleExt public crowdsale;
 
+  bool public reservedTokensAreDistributed = false;
+  uint public distributedReservedTokensDestinationsLen = 0;
+
   function ReservedTokensFinalizeAgent(CrowdsaleTokenExt _token, CrowdsaleExt _crowdsale) {
     token = _token;
     crowdsale = _crowdsale;
@@ -30,34 +27,62 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
     return (token.releaseAgent() == address(this));
   }
 
+  //distributes reserved tokens. Should be called before finalization
+  function distributeReservedTokens(uint reservedTokensDistributionBatch) public {
+    if(msg.sender != address(crowdsale)) {
+      throw;
+    }
+
+    assert(reservedTokensDistributionBatch > 0);
+    assert(!reservedTokensAreDistributed);
+    assert(distributedReservedTokensDestinationsLen < token.reservedTokensDestinationsLen());
+
+    // How many % of tokens the founders and others get
+    uint tokensSold = crowdsale.tokensSold();
+
+    uint startLooping = distributedReservedTokensDestinationsLen;
+    uint batch = token.reservedTokensDestinationsLen().minus(distributedReservedTokensDestinationsLen);
+    if (batch >= reservedTokensDistributionBatch) {
+      batch = reservedTokensDistributionBatch;
+    }
+    uint endLooping = startLooping + batch;
+
+    // move reserved tokens
+    for (uint j = startLooping; j < endLooping; j++) {
+      address reservedAddr = token.reservedTokensDestinations(j);
+      if (!token.areTokensDistributedForAddress(reservedAddr)) {
+        uint allocatedBonusInPercentage;
+        uint allocatedBonusInTokens = token.getReservedTokens(reservedAddr);
+        uint percentsOfTokensUnit = token.getReservedPercentageUnit(reservedAddr);
+        uint percentsOfTokensDecimals = token.getReservedPercentageDecimals(reservedAddr);
+
+        if (percentsOfTokensUnit > 0) {
+          allocatedBonusInPercentage = tokensSold * percentsOfTokensUnit / 10**percentsOfTokensDecimals / 100;
+          token.mint(reservedAddr, allocatedBonusInPercentage);
+        }
+
+        if (allocatedBonusInTokens > 0) {
+          token.mint(reservedAddr, allocatedBonusInTokens);
+        }
+
+        token.finalizeReservedAddress(reservedAddr);
+        distributedReservedTokensDestinationsLen++;
+      }
+    }
+
+    if (distributedReservedTokensDestinationsLen == token.reservedTokensDestinationsLen()) {
+      reservedTokensAreDistributed = true;
+    }
+  }
+
   /** Called once by crowdsale finalize() if the sale was success. */
   function finalizeCrowdsale() public {
     if(msg.sender != address(crowdsale)) {
       throw;
     }
 
-    // How many % of tokens the founders and others get
-    uint tokensSold = crowdsale.tokensSold();
-
-    // move reserved tokens in percentage
-    for (var j = 0; j < token.reservedTokensDestinationsLen(); j++) {
-      uint allocatedBonusInPercentage;
-      uint percentsOfTokensUnit = token.getReservedTokensListValInPercentageUnit(token.reservedTokensDestinations(j));
-      uint percentsOfTokensDecimals = token.getReservedTokensListValInPercentageDecimals(token.reservedTokensDestinations(j));
-      if (percentsOfTokensUnit > 0) {
-        allocatedBonusInPercentage = tokensSold * percentsOfTokensUnit / 10**percentsOfTokensDecimals / 100;
-        tokensSold = tokensSold.plus(allocatedBonusInPercentage);
-        token.mint(token.reservedTokensDestinations(j), allocatedBonusInPercentage);
-      }
-    }
-
-    // move reserved tokens in tokens
-    for (var i = 0; i < token.reservedTokensDestinationsLen(); i++) {
-      uint allocatedBonusInTokens = token.getReservedTokensListValInTokens(token.reservedTokensDestinations(i));
-      if (allocatedBonusInTokens > 0) {
-        tokensSold = tokensSold.plus(allocatedBonusInTokens);
-        token.mint(token.reservedTokensDestinations(i), allocatedBonusInTokens);
-      }
+    if (token.reservedTokensDestinationsLen() > 0) {
+      assert(reservedTokensAreDistributed);
     }
 
     token.releaseTokenTransfer();
