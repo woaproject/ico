@@ -68,17 +68,8 @@ contract CrowdsaleExt is Haltable {
   /* How many distinct addresses have invested */
   uint public investorCount = 0;
 
-  /* How much wei we have returned back to the contract after a failed crowdfund. */
-  uint public loadedRefund = 0;
-
-  /* How much wei we have given back to investors.*/
-  uint public weiRefunded = 0;
-
   /* Has this crowdsale been finalized */
   bool public finalized;
-
-  /* Do we need to have unique contributor id for each customer */
-  bool public requireCustomerId;
 
   bool public isWhiteListed;
 
@@ -128,18 +119,11 @@ contract CrowdsaleExt is Haltable {
    * - Success: Minimum funding goal reached
    * - Failure: Minimum funding goal not reached before ending time
    * - Finalized: The finalized has been called and succesfully executed
-   * - Refunding: Refunds are loaded on the contract for reclaim.
    */
-  enum State{Unknown, Preparing, PreFunding, Funding, Success, Failure, Finalized, Refunding}
+  enum State{Unknown, Preparing, PreFunding, Funding, Success, Failure, Finalized}
 
   // A new investment was made
   event Invested(address investor, uint weiAmount, uint tokenAmount, uint128 customerId);
-
-  // Refund was processed for a contributor
-  event Refund(address investor, uint weiAmount);
-
-  // The rules were changed what kind of investments we accept
-  event InvestmentPolicyChanged(bool newRequireCustomerId, bool newRequiredSignedAddress, address newSignerAddress);
 
   // Address early participation whitelist status changed
   event Whitelisted(address addr, bool status);
@@ -303,79 +287,10 @@ contract CrowdsaleExt is Haltable {
   }
 
   /**
-   * Preallocate tokens for the early investors.
-   *
-   * Preallocated tokens have been sold before the actual crowdsale opens.
-   * This function mints the tokens and moves the crowdsale needle.
-   *
-   * Investor count is not handled; it is assumed this goes for multiple investors
-   * and the token distribution happens outside the smart contract flow.
-   *
-   * No money is exchanged, as the crowdsale team already have received the payment.
-   *
-   * @param fullTokens tokens as full tokens - decimal places added internally
-   * @param weiPrice Price of a single full token in wei
-   *
-   */
-  function preallocate(address receiver, uint fullTokens, uint weiPrice) public onlyOwner {
-
-    uint tokenAmount = fullTokens * 10**token.decimals();
-    uint weiAmount = weiPrice * fullTokens; // This can be also 0, we give out tokens for free
-
-    weiRaised = weiRaised.plus(weiAmount);
-    tokensSold = tokensSold.plus(tokenAmount);
-
-    investedAmountOf[receiver] = investedAmountOf[receiver].plus(weiAmount);
-    tokenAmountOf[receiver] = tokenAmountOf[receiver].plus(tokenAmount);
-
-    assignTokens(receiver, tokenAmount);
-
-    // Tell us invest was success
-    Invested(receiver, weiAmount, tokenAmount, 0);
-  }
-
-  /**
-   * Allow anonymous contributions to this crowdsale.
-   */
-  function investWithSignedAddress(address addr, uint128 customerId, uint8 v, bytes32 r, bytes32 s) public payable {
-     bytes32 hash = sha256(addr);
-     if (ecrecover(hash, v, r, s) != signerAddress) throw;
-     if(customerId == 0) throw;  // UUIDv4 sanity check
-     investInternal(addr, customerId);
-  }
-
-  /**
-   * Track who is the customer making the payment so we can send thank you email.
-   */
-  function investWithCustomerId(address addr, uint128 customerId) public payable {
-    if(requiredSignedAddress) throw; // Crowdsale allows only server-side signed participants
-    if(customerId == 0) throw;  // UUIDv4 sanity check
-    investInternal(addr, customerId);
-  }
-
-  /**
    * Allow anonymous contributions to this crowdsale.
    */
   function invest(address addr) public payable {
-    if(requireCustomerId) throw; // Crowdsale needs to track participants for thank you email
-    if(requiredSignedAddress) throw; // Crowdsale allows only server-side signed participants
     investInternal(addr, 0);
-  }
-
-  /**
-   * Invest to tokens, recognize the payer and clear his address.
-   *
-   */
-  function buyWithSignedAddress(uint128 customerId, uint8 v, bytes32 r, bytes32 s) public payable {
-    investWithSignedAddress(msg.sender, customerId, v, r, s);
-  }
-
-  /**
-   * Invest to tokens, recognize the payer.
-   *
-   */
-  function buyWithCustomerId(uint128 customerId) public payable {
-    investWithCustomerId(msg.sender, customerId);
   }
 
   /**
@@ -434,27 +349,6 @@ contract CrowdsaleExt is Haltable {
   }
 
   /**
-   * Set policy do we need to have server-side customer ids for the investments.
-   *
-   */
-  function setRequireCustomerId(bool value) onlyOwner {
-    requireCustomerId = value;
-    InvestmentPolicyChanged(requireCustomerId, requiredSignedAddress, signerAddress);
-  }
-
-  /**
-   * Set policy if all investors must be cleared on the server side first.
-   *
-   * This is e.g. for the accredited investor clearing.
-   *
-   */
-  function setRequireSignedAddress(bool value, address _signerAddress) onlyOwner {
-    requiredSignedAddress = value;
-    signerAddress = _signerAddress;
-    InvestmentPolicyChanged(requireCustomerId, requiredSignedAddress, signerAddress);
-  }
-
-  /**
    * Allow addresses to do early participation.
    */
   function setEarlyParticipantWhitelist(address addr, bool status, uint minCap, uint maxCap) onlyOwner {
@@ -486,6 +380,10 @@ contract CrowdsaleExt is Haltable {
     earlyParticipantWhitelist[addr] = WhiteListData({status:earlyParticipantWhitelist[addr].status, minCap:0, maxCap:newMaxCap});
   }
 
+  function whitelistedParticipantsLength() public constant returns (uint) {
+    return whitelistedParticipants.length;
+  }
+
   function updateJoinedCrowdsales(address addr) private onlyOwner {
     joinedCrowdsales[joinedCrowdsalesLen++] = addr;
   }
@@ -496,14 +394,10 @@ contract CrowdsaleExt is Haltable {
     lastTier = addr;
   }
 
-  function clearJoinedCrowdsales() onlyOwner {
-    joinedCrowdsalesLen = 0;
-  }
-
   function updateJoinedCrowdsalesMultiple(address[] addrs) onlyOwner {
     assert(addrs.length != 0);
     assert(joinedCrowdsales.length == 0);
-    clearJoinedCrowdsales();
+    assert(joinedCrowdsalesLen == 0);
     for (uint iter = 0; iter < addrs.length; iter++) {
       if(joinedCrowdsalesLen == joinedCrowdsales.length) {
           joinedCrowdsales.length += 1;
@@ -609,31 +503,6 @@ contract CrowdsaleExt is Haltable {
   }
 
   /**
-   * Allow load refunds back on the contract for the refunding.
-   *
-   * The team can transfer the funds back on the smart contract in the case the minimum goal was not reached..
-   */
-  function loadRefund() public payable inState(State.Failure) {
-    if(msg.value == 0) throw;
-    loadedRefund = loadedRefund.plus(msg.value);
-  }
-
-  /**
-   * Investors can claim refund.
-   *
-   * Note that any refunds from proxy buyers should be handled separately,
-   * and not through this contract.
-   */
-  function refund() public inState(State.Refunding) {
-    uint256 weiValue = investedAmountOf[msg.sender];
-    if (weiValue == 0) throw;
-    investedAmountOf[msg.sender] = 0;
-    weiRefunded = weiRefunded.plus(weiValue);
-    Refund(msg.sender, weiValue);
-    if (!msg.sender.send(weiValue)) throw;
-  }
-
-  /**
    * @return true if the crowdsale has raised enough money to be a successful.
    */
   function isMinimumGoalReached() public constant returns (bool reached) {
@@ -667,7 +536,6 @@ contract CrowdsaleExt is Haltable {
     else if (block.timestamp < startsAt) return State.PreFunding;
     else if (block.timestamp <= endsAt && !isCrowdsaleFull()) return State.Funding;
     else if (isMinimumGoalReached()) return State.Success;
-    else if (!isMinimumGoalReached() && weiRaised > 0 && loadedRefund >= weiRaised) return State.Refunding;
     else return State.Failure;
   }
 
@@ -724,8 +592,4 @@ contract CrowdsaleExt is Haltable {
    * Create new tokens or transfer issued tokens to the investor depending on the cap model.
    */
   function assignTokens(address receiver, uint tokenAmount) private;
-
-  function whitelistedParticipantsLength() public constant returns (uint) {
-    return whitelistedParticipants.length;
-  }
 }
