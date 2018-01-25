@@ -26,26 +26,26 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	it("shouldn't set finalize agent once more", async () => {
     	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
     	let reservedTokensFinalizeAgent = await ReservedTokensFinalizeAgent.deployed();
-    	await mintedTokenCappedCrowdsaleExt.setFinalizeAgent(reservedTokensFinalizeAgent.address).should.be.rejectedWith(ERROR_MSG);;
+    	await mintedTokenCappedCrowdsaleExt.setFinalizeAgent(reservedTokensFinalizeAgent.address).should.be.rejectedWith(ERROR_MSG);
 	});
 
 	it("shouldn't set pricing strategy once more", async () => {
     	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
     	let flatPricingExt = await FlatPricingExt.deployed();
-    	await mintedTokenCappedCrowdsaleExt.setPricingStrategy(flatPricingExt.address).should.be.rejectedWith(ERROR_MSG);;
+    	await mintedTokenCappedCrowdsaleExt.setPricingStrategy(flatPricingExt.address).should.be.rejectedWith(ERROR_MSG);
 	});
 
 	it("shouldn't update rate", async () => {
     	let newRate = 10**18 / 2000;
     	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
     	let flatPricingExt = await FlatPricingExt.deployed();
-    	await mintedTokenCappedCrowdsaleExt.updateRate(newRate).should.be.rejectedWith(ERROR_MSG);;
+    	await mintedTokenCappedCrowdsaleExt.updateRate(newRate).should.be.rejectedWith(ERROR_MSG);
 	});
 
 	it("shouldn't update max cap", async () => {
     	let newMaxCap = 200000000 * 10**18;
     	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
-    	await mintedTokenCappedCrowdsaleExt.setMaximumSellableTokens(newMaxCap).should.be.rejectedWith(ERROR_MSG);;
+    	await mintedTokenCappedCrowdsaleExt.setMaximumSellableTokens(newMaxCap).should.be.rejectedWith(ERROR_MSG);
 	});
 
 	/*it("should update rate", async () => {
@@ -73,12 +73,10 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
     	startsAt.should.be.bignumber.equal(newStartsAt);
 	});*/
 
-	it("should get finalize agent", function() {
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.finalizeAgent.call();
-	    }).then(function(res) {
-	    	assert.equal(res, ReservedTokensFinalizeAgent.address, "ReservedTokensFinalizeAgent contract should be the finalizeAgent of crowdsale contract");
-	    });
+	it("should get finalize agent", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		let finalizeAgent = await mintedTokenCappedCrowdsaleExt.finalizeAgent.call();
+		ReservedTokensFinalizeAgent.address.should.be.bignumber.equal(finalizeAgent);
 	});
 
 	it("should get early participant white list", function() {
@@ -117,52 +115,31 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		isTierJoined.should.be.bignumber.equal(0);
 	});
 
-	it("shouldn't accept investment from not whitelisted user", function() {
-		let weiToSend = parseInt(constants.investments[0]*constants.rate, 10);
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.buy({from: accounts[1], value: weiToSend});
-	    }).then(function(res) {
-	    	assert.isOk(false, 'investment won`t fall');
-	    }, function(err) {
-	    	assert.isOk('everything', 'investment is not passed');
-	    });
+	it("shouldn't accept investment from not whitelisted user", async () => {
+    	let weiToSend = parseInt(constants.investments[0]*constants.rate, 10);
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.buy({from: accounts[1], value: weiToSend}).should.be.rejectedWith(ERROR_MSG);
 	});
 
-	it("shouldn't accept investment from whitelisted user less than minCap", function() {
-		let weiToSend = parseInt(constants.investments[0]*constants.rate, 10);
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-			return instance.buy({from: accounts[2], value: weiToSend});
-	    }).then(function(res) {
-	    	assert.isOk(false, 'investment won`t fall');
-	    }, function(err) {
-	    	assert.isOk('everything', 'investment less than minCap for investor is not allowed');
-	    });
+	it("shouldn't accept investment from whitelisted user less than minCap", async () => {
+    	let weiToSend = parseInt(constants.investments[0]*constants.rate, 10);
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.buy({from: accounts[2], value: weiToSend}).should.be.rejectedWith(ERROR_MSG);
 	});
 
-	it("shouldn't accept investment from whitelisted user more than maxCap", function() {
-		let weiToSend = parseInt(constants.investments[1]*constants.rate, 10);
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-			return instance.buy({from: accounts[2], value: weiToSend});
-	    }).then(function(res) {
-	    	assert.isOk(false, 'investment won`t fall');
-	    }, function(err) {
-	    	assert.isOk('everything', 'investment is greater than maxCap for investor is not allowed');
-	    });
+	it("shouldn't accept investment from whitelisted user more than maxCap", async () => {
+    	let weiToSend = parseInt(constants.investments[1]*constants.rate, 10);
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.buy({from: accounts[2], value: weiToSend}).should.be.rejectedWith(ERROR_MSG);
 	});
 
 	balanceOfMultisigInitial = web3.eth.getBalance(accounts[3]);
 
-	it("should accept buy from whitelisted user 1 within cap range", function() {
-		weiToSend1 = parseInt(constants.investments[2]*constants.rate, 10);
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.buy({from: accounts[2], value: weiToSend1});
-	    }).then(function(res) {
-	    	if (res.receipt.blockNumber > 0) {
-	    		assert.isOk('everything', 'investment is passed');
-	    	} else {
-	    		assert.isOk(false, 'investment will fall');
-	    	}
-	    });
+
+	it("should accept buy from whitelisted user 1 within cap range", async () => {
+    	weiToSend1 = parseInt(constants.investments[2]*constants.rate, 10);
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.buy({from: accounts[2], value: weiToSend1}).should.be.fulfilled;
 	});
 
 	it("should return updated balance of multisig", function() {
@@ -170,17 +147,11 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		assert.equal(balanceOfMultisigUpdated, parseInt(balanceOfMultisigInitial, 10) + parseInt(weiToSend1, 10), "balance of multisig should be increased to invested value");
 	});
 
-	it("should accept buy from whitelisted user 2 within cap range", function() {
-		weiToSend1 = parseInt(constants.investments[2]*constants.rate, 10);
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.buy({from: accounts[4], value: weiToSend1});
-	    }).then(function(res) {
-	    	if (res.receipt.blockNumber > 0) {
-	    		assert.isOk('everything', 'investment is passed');
-	    	} else {
-	    		assert.isOk(false, 'investment will fall');
-	    	}
-	    });
+
+	it("should accept buy from whitelisted user 2 within cap range", async () => {
+    	weiToSend1 = parseInt(constants.investments[2]*constants.rate, 10);
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.buy({from: accounts[4], value: weiToSend1}).should.be.fulfilled;
 	});
 
 	it("should return updated balance of multisig", function() {
@@ -196,17 +167,10 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    });
 	});
 
-	it("should accept buy less than minCap at second buy", function() {
-		weiToSend2 = parseInt(constants.investments[3]*constants.rate, 10);
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.buy({from: accounts[2], value: weiToSend2});
-	    }).then(function(res) {
-	    	if (res.receipt.blockNumber > 0) {
-	    		assert.isOk('everything', 'investment is passed');
-	    	} else {
-	    		assert.isOk(false, 'investment will fall');
-	    	}
-	    });
+	it("should accept buy less than minCap at second buy", async () => {
+    	weiToSend2 = parseInt(constants.investments[3]*constants.rate, 10);
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.buy({from: accounts[2], value: weiToSend2}).should.be.fulfilled;
 	});
 
 	it("should return updated balance of multisig", function() {
@@ -214,17 +178,11 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + 2 * parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10)), "balance of multisig should be increased to invested value");
 	});
 
-	it("should accept buy of fractionated amount of tokens from whitelisted user within cap range", function() {
-		weiToSend3 = parseInt(constants.investments[4]*constants.rate, 10);
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.buy({from: accounts[2], value: weiToSend3});
-	    }).then(function(res) {
-	    	if (res.receipt.blockNumber > 0) {
-	    		assert.isOk('everything', 'investment is passed');
-	    	} else {
-	    		assert.isOk(false, 'investment will fall');
-	    	}
-	    });
+
+	it("should accept buy of fractionated amount of tokens from whitelisted user within cap range", async () => {
+    	weiToSend3 = parseInt(constants.investments[4]*constants.rate, 10);
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.buy({from: accounts[2], value: weiToSend3}).should.be.fulfilled;
 	});
 
 	it("should return token balance we have bought in previous step", function() {
@@ -240,15 +198,10 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		assert.equal(balanceOfMultisigUpdated, (parseInt(balanceOfMultisigInitial, 10) + 2 * parseInt(weiToSend1, 10) + parseInt(weiToSend2, 10) + parseInt(weiToSend3, 10)), "balance of multisig should be increased to invested value");
 	});
 
-	it("shouldn't accept investment from whitelisted user that exceeds maxCap", function() {
-		let weiToSend = parseInt(constants.investments[5]*constants.rate, 10);
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-			return instance.buy({from: accounts[2], value: weiToSend});
-	    }).then(function(res) {
-	    	assert.isOk(false, 'investment won`t fall');
-	    }, function(err) {
-	    	assert.isOk('everything', 'investment is greater than maxCap in total for investor is not allowed');
-	    });
+	it("shouldn't accept investment from whitelisted user that exceeds maxCap", async () => {
+    	let weiToSend = parseInt(constants.investments[5]*constants.rate, 10);
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.buy({from: accounts[2], value: weiToSend}).should.be.rejectedWith(ERROR_MSG);
 	});
 
 	it("should get the count of whitelisted participants", function() {
