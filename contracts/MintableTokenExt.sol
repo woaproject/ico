@@ -90,6 +90,9 @@ contract MintableTokenExt is StandardToken, Ownable {
 
   function setReservedTokensListMultiple(address[] addrs, uint[] inTokens, uint[] inPercentageUnit, uint[] inPercentageDecimals) canMint onlyOwner {
     assert(!reservedTokensDestinationsAreSet);
+    assert(addrs.length == inTokens.length);
+    assert(inTokens.length == inPercentageUnit.length);
+    assert(inPercentageUnit.length == inPercentageDecimals.length);
     for (uint iterator = 0; iterator < addrs.length; iterator++) {
       if (addrs[iterator] != address(0)) {
         setReservedTokensList(addrs[iterator], inTokens[iterator], inPercentageUnit[iterator], inPercentageDecimals[iterator]);

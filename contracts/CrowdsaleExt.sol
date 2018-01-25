@@ -126,7 +126,8 @@ contract CrowdsaleExt is Haltable {
   event Invested(address investor, uint weiAmount, uint tokenAmount, uint128 customerId);
 
   // Address early participation whitelist status changed
-  event Whitelisted(address addr, bool status);
+  event Whitelisted(address addr, bool status, uint minCap, uint maxCap);
+  event WhitelistItemChanged(address addr, bool status, uint minCap, uint maxCap);
 
   // Crowdsale start time has been changed
   event StartsAtChanged(uint newStartsAt);
@@ -353,29 +354,39 @@ contract CrowdsaleExt is Haltable {
   /**
    * Allow addresses to do early participation.
    */
-  function setEarlyParticipantWhitelist(address addr, bool status, uint minCap, uint maxCap) onlyOwner {
+  function setEarlyParticipantWhitelist(address addr, bool status, uint minCap, uint maxCap) public onlyOwner {
     if (!isWhiteListed) throw;
     assert(addr != address(0));
     assert(maxCap > 0);
     assert(minCap <= maxCap);
+    assert(now <= endsAt);
 
     if (earlyParticipantWhitelist[addr].maxCap == 0) {
-      earlyParticipantWhitelist[addr] = WhiteListData({status:status, minCap:minCap, maxCap:maxCap});
       whitelistedParticipants.push(addr);
-      Whitelisted(addr, status);
+      Whitelisted(addr, status, minCap, maxCap);
+    } else {
+      WhitelistItemChanged(addr, status, minCap, maxCap);
     }
+
+    earlyParticipantWhitelist[addr] = WhiteListData({status:status, minCap:minCap, maxCap:maxCap});
   }
 
-  function setEarlyParticipantsWhitelist(address[] addrs, bool[] statuses, uint[] minCaps, uint[] maxCaps) onlyOwner {
+  function setEarlyParticipantsWhitelist(address[] addrs, bool[] statuses, uint[] minCaps, uint[] maxCaps) public onlyOwner {
     if (!isWhiteListed) throw;
+    assert(now <= endsAt);
+    assert(addrs.length == statuses.length);
+    assert(statuses.length == minCaps.length);
+    assert(minCaps.length == maxCaps.length);
     for (uint iterator = 0; iterator < addrs.length; iterator++) {
       setEarlyParticipantWhitelist(addrs[iterator], statuses[iterator], minCaps[iterator], maxCaps[iterator]);
     }
   }
 
-  function updateEarlyParticipantWhitelist(address addr, address contractAddr, uint tokensBought) {
-    if (tokensBought < earlyParticipantWhitelist[addr].minCap) throw;
+  function updateEarlyParticipantWhitelist(address addr, address contractAddr, uint tokensBought)  {
     if (!isWhiteListed) throw;
+    assert(addr != address(0));
+    assert(now <= endsAt);
+    if (tokensBought < earlyParticipantWhitelist[addr].minCap) throw;
     if (addr != msg.sender && contractAddr != msg.sender) throw;
     uint newMaxCap = earlyParticipantWhitelist[addr].maxCap;
     newMaxCap = newMaxCap.minus(tokensBought);
@@ -387,6 +398,7 @@ contract CrowdsaleExt is Haltable {
   }
 
   function updateJoinedCrowdsales(address addr) private onlyOwner {
+    assert(addr != address(0));
     joinedCrowdsales[joinedCrowdsalesLen++] = addr;
   }
 
