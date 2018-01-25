@@ -58,7 +58,7 @@ contract MintedTokenCappedCrowdsaleExt is CrowdsaleExt {
     if (!isUpdatable) throw;
     if (now >= startsAt) throw;
 
-    CrowdsaleExt lastTierCntrct = CrowdsaleExt(lastTier);
+    CrowdsaleExt lastTierCntrct = CrowdsaleExt(getLastTier());
     if (lastTierCntrct.finalized()) throw;
 
     maximumSellableTokens = tokens;
@@ -70,7 +70,7 @@ contract MintedTokenCappedCrowdsaleExt is CrowdsaleExt {
     if (!isUpdatable) throw;
     if (now >= startsAt) throw;
 
-    CrowdsaleExt lastTierCntrct = CrowdsaleExt(lastTier);
+    CrowdsaleExt lastTierCntrct = CrowdsaleExt(getLastTier());
     if (lastTierCntrct.finalized()) throw;
 
     pricingStrategy.updateRate(newOneTokenInWei);

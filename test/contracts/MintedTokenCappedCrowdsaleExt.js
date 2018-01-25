@@ -17,12 +17,10 @@ let weiToSend2 = 0; //weiToSend in 2nd success investment;
 let weiToSend3 = 0; //weiToSend in 3d success investment;
 
 contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
-	it("should get last tier tier for crowdsale contract", function() {
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.lastTier.call();
-	    }).then(function(res) {
-	      assert.equal(res, MintedTokenCappedCrowdsaleExt.address, "`lastTier` property of Crowdsale contract is equal MintedTokenCappedCrowdsaleExt address");
-	    });
+	it("should get last tier tier for crowdsale contract", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		let lastCrowdsale = await mintedTokenCappedCrowdsaleExt.getLastTier.call();
+		mintedTokenCappedCrowdsaleExt.address.should.be.bignumber.equal(lastCrowdsale);
 	});
 
 	it("shouldn't set finalize agent once more", async () => {
@@ -105,6 +103,18 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    }).then(function(res) {
 	    	assert.equal(res[2], constants.whiteListItem.maxCap, "white list item maxCap should return value we inserted before at deploying stage");
 	    });
+	});
+
+	it("should get isTierJoined", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		let isTierJoined = await mintedTokenCappedCrowdsaleExt.isTierJoined.call(mintedTokenCappedCrowdsaleExt.address);
+		true.should.be.equal(isTierJoined);
+	});
+
+	it("should get tier position", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		let isTierJoined = await mintedTokenCappedCrowdsaleExt.getTierPosition.call(mintedTokenCappedCrowdsaleExt.address);
+		isTierJoined.should.be.bignumber.equal(0);
 	});
 
 	it("shouldn't accept investment from not whitelisted user", function() {

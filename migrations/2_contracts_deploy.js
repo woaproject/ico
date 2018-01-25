@@ -89,17 +89,11 @@ module.exports = function(deployer, network, accounts) {
 
 	    await crowdsaleTokenExt.setMintAgent(ReservedTokensFinalizeAgent.address, true);
 
-	    await mintedTokenCappedCrowdsaleExt.setEarlyParticipantWhitelist(
-	  		accounts[2], 
-	  		constants.whiteListItem.status, 
-	  		constants.whiteListItem.minCap, 
-	  		constants.whiteListItem.maxCap
-	  	);
-	  	await mintedTokenCappedCrowdsaleExt.setEarlyParticipantWhitelist(
-	  		accounts[4], 
-	  		constants.whiteListItem.status, 
-	  		constants.whiteListItem.minCap, 
-	  		constants.whiteListItem.maxCap
+	    await mintedTokenCappedCrowdsaleExt.setEarlyParticipantWhitelistMultiple(
+	  		[accounts[2], accounts[4]],
+	  		[constants.whiteListItem.status, constants.whiteListItem.status], 
+	  		[constants.whiteListItem.minCap, constants.whiteListItem.minCap], 
+	  		[constants.whiteListItem.maxCap, constants.whiteListItem.maxCap]
 	  	);
 
 	    await mintedTokenCappedCrowdsaleExt.setFinalizeAgent(ReservedTokensFinalizeAgent.address);
