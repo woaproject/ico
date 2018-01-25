@@ -443,6 +443,10 @@ contract CrowdsaleExt is Haltable {
       throw;
     }
 
+    if(now > startsAt) {
+      throw;
+    }
+
     CrowdsaleExt lastTierCntrct = CrowdsaleExt(getLastTier());
     if (lastTierCntrct.finalized()) throw;
 
@@ -477,6 +481,10 @@ contract CrowdsaleExt is Haltable {
     }
 
     if(startsAt > time) {
+      throw;
+    }
+
+    if(now > endsAt) {
       throw;
     }
 

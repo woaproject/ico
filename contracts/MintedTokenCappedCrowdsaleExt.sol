@@ -56,7 +56,7 @@ contract MintedTokenCappedCrowdsaleExt is CrowdsaleExt {
   function setMaximumSellableTokens(uint tokens) onlyOwner {
     if (finalized) throw;
     if (!isUpdatable) throw;
-    if (now >= startsAt) throw;
+    if (now > startsAt) throw;
 
     CrowdsaleExt lastTierCntrct = CrowdsaleExt(getLastTier());
     if (lastTierCntrct.finalized()) throw;
@@ -68,7 +68,7 @@ contract MintedTokenCappedCrowdsaleExt is CrowdsaleExt {
   function updateRate(uint newOneTokenInWei) onlyOwner {
     if (finalized) throw;
     if (!isUpdatable) throw;
-    if (now >= startsAt) throw;
+    if (now > startsAt) throw;
 
     CrowdsaleExt lastTierCntrct = CrowdsaleExt(getLastTier());
     if (lastTierCntrct.finalized()) throw;
