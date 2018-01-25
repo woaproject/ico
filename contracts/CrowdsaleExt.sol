@@ -309,7 +309,7 @@ contract CrowdsaleExt is Haltable {
     }
 
     // Finalizing is optional. We only call it if we are given a finalizing agent.
-    if(address(finalizeAgent) != 0) {
+    if(address(finalizeAgent) != address(0)) {
       finalizeAgent.distributeReservedTokens(reservedTokensDistributionBatch);
     }
   }
@@ -327,7 +327,7 @@ contract CrowdsaleExt is Haltable {
     }
 
     // Finalizing is optional. We only call it if we are given a finalizing agent.
-    if(address(finalizeAgent) != 0) {
+    if(address(finalizeAgent) != address(0)) {
       finalizeAgent.finalizeCrowdsale();
     }
 
@@ -340,6 +340,8 @@ contract CrowdsaleExt is Haltable {
    * Design choice: no state restrictions on setting this, so that we can fix fat finger mistakes.
    */
   function setFinalizeAgent(FinalizeAgent addr) onlyOwner {
+    assert(address(addr) != address(0));
+    assert(address(finalizeAgent) == address(0));
     finalizeAgent = addr;
 
     // Don't allow setting bad agent
@@ -477,6 +479,8 @@ contract CrowdsaleExt is Haltable {
    * Design choice: no state restrictions on the set, so that we can fix fat finger mistakes.
    */
   function setPricingStrategy(PricingStrategy _pricingStrategy) onlyOwner {
+    assert(address(_pricingStrategy) != address(0));
+    assert(address(pricingStrategy) == address(0));
     pricingStrategy = _pricingStrategy;
 
     // Don't allow setting bad agent

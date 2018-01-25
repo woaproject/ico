@@ -25,6 +25,18 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	    });
 	});
 
+	it("shouldn't set finalize agent once more", async () => {
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	let reservedTokensFinalizeAgent = await ReservedTokensFinalizeAgent.deployed();
+    	await mintedTokenCappedCrowdsaleExt.setFinalizeAgent(reservedTokensFinalizeAgent.address).should.be.rejectedWith(ERROR_MSG);;
+	});
+
+	it("shouldn't set pricing strategy once more", async () => {
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	let flatPricingExt = await FlatPricingExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.setPricingStrategy(flatPricingExt.address).should.be.rejectedWith(ERROR_MSG);;
+	});
+
 	it("shouldn't update rate", async () => {
     	let newRate = 10**18 / 2000;
     	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
