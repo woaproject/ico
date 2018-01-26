@@ -85,7 +85,7 @@ contract CrowdsaleExt is Haltable {
   address[] public joinedCrowdsales;
   uint public joinedCrowdsalesLen = 0;
 
-  address public lastCrowdsale;
+  address public lastTier = address(0);
 
   /**
     * Do we verify that contributor has been cleared on the server side (accredited investors only).
@@ -486,12 +486,14 @@ contract CrowdsaleExt is Haltable {
     earlyParticipantWhitelist[addr] = WhiteListData({status:earlyParticipantWhitelist[addr].status, minCap:0, maxCap:newMaxCap});
   }
 
-  function updateJoinedCrowdsales(address addr) onlyOwner {
+  function updateJoinedCrowdsales(address addr) private onlyOwner {
     joinedCrowdsales[joinedCrowdsalesLen++] = addr;
   }
 
-  function setLastCrowdsale(address addr) onlyOwner {
-    lastCrowdsale = addr;
+  function setLastTier(address addr) private onlyOwner {
+    assert(addr != address(0));
+    assert(address(lastTier) == address(0));
+    lastTier = addr;
   }
 
   function clearJoinedCrowdsales() onlyOwner {
@@ -499,6 +501,8 @@ contract CrowdsaleExt is Haltable {
   }
 
   function updateJoinedCrowdsalesMultiple(address[] addrs) onlyOwner {
+    assert(addrs.length != 0);
+    assert(joinedCrowdsales.length == 0);
     clearJoinedCrowdsales();
     for (uint iter = 0; iter < addrs.length; iter++) {
       if(joinedCrowdsalesLen == joinedCrowdsales.length) {
@@ -506,7 +510,7 @@ contract CrowdsaleExt is Haltable {
       }
       joinedCrowdsales[joinedCrowdsalesLen++] = addrs[iter];
       if (iter == addrs.length - 1)
-        setLastCrowdsale(addrs[iter]);
+        setLastTier(addrs[iter]);
     }
   }
 
@@ -523,8 +527,8 @@ contract CrowdsaleExt is Haltable {
       throw;
     }
 
-    CrowdsaleExt lastCrowdsaleCntrct = CrowdsaleExt(lastCrowdsale);
-    if (lastCrowdsaleCntrct.finalized()) throw;
+    CrowdsaleExt lastTierCntrct = CrowdsaleExt(lastTier);
+    if (lastTierCntrct.finalized()) throw;
 
     startsAt = time;
     StartsAtChanged(startsAt);
@@ -553,8 +557,8 @@ contract CrowdsaleExt is Haltable {
       throw;
     }
 
-    CrowdsaleExt lastCrowdsaleCntrct = CrowdsaleExt(lastCrowdsale);
-    if (lastCrowdsaleCntrct.finalized()) throw;
+    CrowdsaleExt lastTierCntrct = CrowdsaleExt(lastTier);
+    if (lastTierCntrct.finalized()) throw;
 
     uint num = 0;
     for (var i = 0; i < joinedCrowdsalesLen; i++) {

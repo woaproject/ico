@@ -6,45 +6,40 @@
 
 pragma solidity ^0.4.12;
 
-import "./CrowdsaleExt.sol";
 import "oracles-zeppelin/contracts/ownership/Ownable.sol";
 import "./PricingStrategy.sol";
 import "./SafeMathLibExt.sol";
+
 
 /**
  * Fixed crowdsale pricing - everybody gets the same price.
  */
 contract FlatPricingExt is PricingStrategy, Ownable {
-
   using SafeMathLibExt for uint;
 
   /* How many weis one token costs */
   uint public oneTokenInWei;
 
-  bool public isUpdatable;
-
-  address public lastCrowdsale;
-
   // Crowdsale rate has been changed
   event RateChanged(uint newOneTokenInWei);
 
-  function FlatPricingExt(uint _oneTokenInWei, bool _isUpdatable) onlyOwner {
+  modifier onlyTier() {
+    if (msg.sender != address(tier)) throw;
+    _;
+  }
+
+  function setTier(address _tier) onlyOwner {
+    assert(_tier != address(0));
+    assert(tier == address(0));
+    tier = _tier;
+  }
+
+  function FlatPricingExt(uint _oneTokenInWei) onlyOwner {
     require(_oneTokenInWei > 0);
     oneTokenInWei = _oneTokenInWei;
-
-    isUpdatable = _isUpdatable;
   }
 
-  function setLastCrowdsale(address addr) onlyOwner {
-    lastCrowdsale = addr;
-  }
-
-  function updateRate(uint newOneTokenInWei) onlyOwner {
-    if (!isUpdatable) throw;
-
-    CrowdsaleExt lastCrowdsaleCntrct = CrowdsaleExt(lastCrowdsale);
-    if (lastCrowdsaleCntrct.finalized()) throw;
-
+  function updateRate(uint newOneTokenInWei) onlyTier {
     oneTokenInWei = newOneTokenInWei;
     RateChanged(newOneTokenInWei);
   }

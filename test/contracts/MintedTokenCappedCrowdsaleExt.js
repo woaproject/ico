@@ -8,6 +8,7 @@ const ERROR_MSG = 'VM Exception while processing transaction: invalid opcode';
 
 require('chai')
   .use(require('chai-as-promised'))
+  .use(require('chai-bignumber')(web3.BigNumber))
   .should();
 
 let balanceOfMultisigInitial = 0;
@@ -16,22 +17,50 @@ let weiToSend2 = 0; //weiToSend in 2nd success investment;
 let weiToSend3 = 0; //weiToSend in 3d success investment;
 
 contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
-	it("should get last crowdsale tier for crowdsale contract", function() {
+	it("should get last tier tier for crowdsale contract", function() {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.lastCrowdsale.call();
+	    	return instance.lastTier.call();
 	    }).then(function(res) {
-	      assert.equal(res, MintedTokenCappedCrowdsaleExt.address, "`lastCrowdsale` property of Crowdsale contract is equal MintedTokenCappedCrowdsaleExt address");
+	      assert.equal(res, MintedTokenCappedCrowdsaleExt.address, "`lastTier` property of Crowdsale contract is equal MintedTokenCappedCrowdsaleExt address");
 	    });
 	});
 
-	//todo
-	/*it("should get joinedCrowdsales item for crowdsale contract", function() {
-		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {
-	    	return instance.joinedCrowdsales.call(0);
-	    }).then(function(res) {
-	    	console.log(res);
-	      assert.equal(res, MintedTokenCappedCrowdsaleExt.address, "`joinedCrowdsales[0]` property of Crowdsale contract is equal MintedTokenCappedCrowdsaleExt address");
-	    });
+	it("shouldn't update rate", async () => {
+    	let newRate = 10**18 / 2000;
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	let flatPricingExt = await FlatPricingExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.updateRate(newRate).should.be.rejectedWith(ERROR_MSG);;
+	});
+
+	it("shouldn't update max cap", async () => {
+    	let newMaxCap = 200000000 * 10**18;
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.setMaximumSellableTokens(newMaxCap).should.be.rejectedWith(ERROR_MSG);;
+	});
+
+	/*it("should update rate", async () => {
+    	let newRate = 10**18 / 2000;
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	let flatPricingExt = await FlatPricingExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.updateRate(newRate);
+    	let rate = await flatPricingExt.oneTokenInWei.call();
+    	rate.should.be.bignumber.equal(newRate);
+	});
+
+	it("should update max cap", async () => {
+    	let newMaxCap = 200000000 * 10**18;
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.setMaximumSellableTokens(newMaxCap);
+    	let maxCap = await mintedTokenCappedCrowdsaleExt.maximumSellableTokens.call();
+    	maxCap.should.be.bignumber.equal(newMaxCap);
+	});
+
+	it("should update startsAt", async () => {
+		let newStartsAt = parseInt(new Date().getTime()/1000);
+    	let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+    	await mintedTokenCappedCrowdsaleExt.setStartsAt(newStartsAt);
+    	let startsAt = await mintedTokenCappedCrowdsaleExt.startsAt.call();
+    	startsAt.should.be.bignumber.equal(newStartsAt);
 	});*/
 
 	it("should get finalize agent", function() {
@@ -277,6 +306,7 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
                 })
         });
     })
+
 
 	it("should set endsAt for crowdsale", function() {
 		return MintedTokenCappedCrowdsaleExt.deployed().then(function(instance) {

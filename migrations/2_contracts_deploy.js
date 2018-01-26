@@ -27,8 +27,7 @@ const tokenParams = [
 ];
 
 const pricingStrategyParams = [
-	web3.toWei(1/constants.pricingStrategy.rate, "ether"),
-    constants.crowdsale.isUpdatable
+	web3.toWei(1/constants.pricingStrategy.rate, "ether")
 ];
 
 const crowdsaleParams = [
@@ -45,9 +44,9 @@ let reservedTokensFinalizeAgentParams = [];
 
 module.exports = function(deployer, network, accounts) {
 	deployer.deploy(SafeMathLibExt).then(async () => {
-  	await deployer.link(SafeMathLibExt, CrowdsaleTokenExt);
+	  	await deployer.link(SafeMathLibExt, CrowdsaleTokenExt);
 		await deployer.deploy(CrowdsaleTokenExt, ...tokenParams);
-	  await deployer.link(SafeMathLibExt, FlatPricingExt);
+		await deployer.link(SafeMathLibExt, FlatPricingExt);
 		await deployer.deploy(FlatPricingExt, ...pricingStrategyParams);
 		crowdsaleParams.unshift(accounts[3]);
 		crowdsaleParams.unshift(FlatPricingExt.address);
@@ -55,61 +54,58 @@ module.exports = function(deployer, network, accounts) {
 		crowdsaleParams.unshift("Test Crowdsale");
 
 		await deployer.link(SafeMathLibExt, MintedTokenCappedCrowdsaleExt);
-  	await deployer.deploy(MintedTokenCappedCrowdsaleExt, ...crowdsaleParams);
+	  	await deployer.deploy(MintedTokenCappedCrowdsaleExt, ...crowdsaleParams);
 
-  	nullFinalizeAgentParams.push(MintedTokenCappedCrowdsaleExt.address);
-  	reservedTokensFinalizeAgentParams.push(CrowdsaleTokenExt.address);
-  	reservedTokensFinalizeAgentParams.push(MintedTokenCappedCrowdsaleExt.address);
+	  	nullFinalizeAgentParams.push(MintedTokenCappedCrowdsaleExt.address);
+	  	reservedTokensFinalizeAgentParams.push(CrowdsaleTokenExt.address);
+	  	reservedTokensFinalizeAgentParams.push(MintedTokenCappedCrowdsaleExt.address);
 
-  	await deployer.link(SafeMathLibExt, NullFinalizeAgentExt);
-  	await deployer.deploy(NullFinalizeAgentExt, ...nullFinalizeAgentParams);
-  	await deployer.link(SafeMathLibExt, ReservedTokensFinalizeAgent);
-  	await deployer.deploy(ReservedTokensFinalizeAgent, ...reservedTokensFinalizeAgentParams);
+	  	await deployer.link(SafeMathLibExt, NullFinalizeAgentExt);
+	  	await deployer.deploy(NullFinalizeAgentExt, ...nullFinalizeAgentParams);
+	  	await deployer.link(SafeMathLibExt, ReservedTokensFinalizeAgent);
+	  	await deployer.deploy(ReservedTokensFinalizeAgent, ...reservedTokensFinalizeAgentParams);
 
-    await deployer.deploy(Registry);
+	    await deployer.deploy(Registry);
 
-  	await FlatPricingExt.deployed().then(async (instance) => {
-    	instance.setLastCrowdsale(MintedTokenCappedCrowdsaleExt.address);
-    });
+	    let crowdsaleTokenExt = await CrowdsaleTokenExt.deployed();
 
-    let crowdsaleTokenExt = await CrowdsaleTokenExt.deployed();
+	  	await crowdsaleTokenExt.setReservedTokensListMultiple(
+	  		[accounts[2], accounts[4]], 
+	  		[constants.reservedTokens.number,constants.reservedTokens2.number], 
+	  		[constants.reservedTokens.percentageUnit,constants.reservedTokens2.percentageUnit], 
+	  		[constants.reservedTokens.percentageDecimals,constants.reservedTokens2.percentageDecimals]
+	  	);
 
-  	await crowdsaleTokenExt.setReservedTokensListMultiple(
-  		[accounts[2], accounts[4]], 
-  		[constants.reservedTokens.number,constants.reservedTokens2.number], 
-  		[constants.reservedTokens.percentageUnit,constants.reservedTokens2.percentageUnit], 
-  		[constants.reservedTokens.percentageDecimals,constants.reservedTokens2.percentageDecimals]
-  	);
+	  	let flatPricingExt = await FlatPricingExt.deployed();
+	  	await flatPricingExt.setTier(MintedTokenCappedCrowdsaleExt.address);
 
-	  let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
 
-    await mintedTokenCappedCrowdsaleExt.updateJoinedCrowdsalesMultiple([MintedTokenCappedCrowdsaleExt.address]);
+	    await mintedTokenCappedCrowdsaleExt.updateJoinedCrowdsalesMultiple([MintedTokenCappedCrowdsaleExt.address]);
 
-    await mintedTokenCappedCrowdsaleExt.setLastCrowdsale(MintedTokenCappedCrowdsaleExt.address);
+	    await crowdsaleTokenExt.setMintAgent(MintedTokenCappedCrowdsaleExt.address, true);
 
-    await crowdsaleTokenExt.setMintAgent(MintedTokenCappedCrowdsaleExt.address, true);
+	    await crowdsaleTokenExt.setMintAgent(NullFinalizeAgentExt.address, true);
 
-    await crowdsaleTokenExt.setMintAgent(NullFinalizeAgentExt.address, true);
+	    await crowdsaleTokenExt.setMintAgent(ReservedTokensFinalizeAgent.address, true);
 
-    await crowdsaleTokenExt.setMintAgent(ReservedTokensFinalizeAgent.address, true);
+	    await mintedTokenCappedCrowdsaleExt.setEarlyParticipantWhitelist(
+	  		accounts[2], 
+	  		constants.whiteListItem.status, 
+	  		constants.whiteListItem.minCap, 
+	  		constants.whiteListItem.maxCap
+	  	);
+	  	await mintedTokenCappedCrowdsaleExt.setEarlyParticipantWhitelist(
+	  		accounts[4], 
+	  		constants.whiteListItem.status, 
+	  		constants.whiteListItem.minCap, 
+	  		constants.whiteListItem.maxCap
+	  	);
 
-    await mintedTokenCappedCrowdsaleExt.setEarlyParticipantWhitelist(
-  		accounts[2], 
-  		constants.whiteListItem.status, 
-  		constants.whiteListItem.minCap, 
-  		constants.whiteListItem.maxCap
-  	);
-  	await mintedTokenCappedCrowdsaleExt.setEarlyParticipantWhitelist(
-  		accounts[4], 
-  		constants.whiteListItem.status, 
-  		constants.whiteListItem.minCap, 
-  		constants.whiteListItem.maxCap
-  	);
+	    await mintedTokenCappedCrowdsaleExt.setFinalizeAgent(ReservedTokensFinalizeAgent.address);
 
-    await mintedTokenCappedCrowdsaleExt.setFinalizeAgent(ReservedTokensFinalizeAgent.address);
+	    await crowdsaleTokenExt.setReleaseAgent(ReservedTokensFinalizeAgent.address);
 
-    await crowdsaleTokenExt.setReleaseAgent(ReservedTokensFinalizeAgent.address);
-
-    await crowdsaleTokenExt.transferOwnership(ReservedTokensFinalizeAgent.address);
+	    await crowdsaleTokenExt.transferOwnership(ReservedTokensFinalizeAgent.address);
 	});
 };

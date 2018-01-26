@@ -12,20 +12,10 @@ if (typeof web3 !== 'undefined') {
 }
 
 contract('FlatPricingExt', function(accounts) {
-	it("should get last crowdsale tier for pricing strategy contract", function() {
-		return FlatPricingExt.deployed().then(function(instance) {
-	    	return instance.lastCrowdsale.call();
-	    }).then(function(res) {
-	      assert.equal(res, MintedTokenCappedCrowdsaleExt.address, "`lastCrowdsale` property of Prising strategy contract is equal MintedTokenCappedCrowdsaleExt address");
-	    });
-	});
-
-	it("should return rate of pricing strategy contract", function() {
-		return FlatPricingExt.deployed().then(function(instance) {
-	    	return instance.oneTokenInWei.call();
-	    }).then(function(rate) {
-	    	constants.rate = rate;
-	    	assert.equal(rate, web3.toWei(1/constants.pricingStrategy.rate, "ether"), "rate should equal the value we inserted before");
-	    });
+	it("should return rate of pricing strategy contract", async () => {
+		let flatPricingExt = await FlatPricingExt.deployed();
+		let rate = await flatPricingExt.oneTokenInWei.call();
+		constants.rate = rate;
+	    assert.equal(rate, web3.toWei(1 / constants.pricingStrategy.rate, "ether"), "rate should equal the value we inserted before");
 	});
 });
