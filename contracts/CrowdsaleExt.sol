@@ -292,6 +292,10 @@ contract CrowdsaleExt is Haltable {
     }
   }
 
+  function areReservedTokensDistributed() public constant returns (bool) {
+    return finalizeAgent.reservedTokensAreDistributed();
+  }
+
   /**
    * Finalize a succcesful crowdsale.
    *

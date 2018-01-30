@@ -14,7 +14,6 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
   CrowdsaleTokenExt public token;
   CrowdsaleExt public crowdsale;
 
-  bool public reservedTokensAreDistributed = false;
   uint public distributedReservedTokensDestinationsLen = 0;
 
   function ReservedTokensFinalizeAgent(CrowdsaleTokenExt _token, CrowdsaleExt _crowdsale) public {

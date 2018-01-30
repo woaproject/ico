@@ -15,6 +15,8 @@ pragma solidity ^0.4.6;
  */
 contract FinalizeAgent {
 
+  bool public reservedTokensAreDistributed = false;
+
   function isFinalizeAgent() public constant returns(bool) {
     return true;
   }
