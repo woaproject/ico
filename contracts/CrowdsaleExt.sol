@@ -297,7 +297,8 @@ contract CrowdsaleExt is Haltable {
   }
 
   function canDistributeReservedTokens() public constant returns(bool) {
-    if ((getState() == State.Success) && !halted && !finalized && !areReservedTokensDistributed()) return true;
+    CrowdsaleExt lastTierCntrct = CrowdsaleExt(getLastTier());
+    if ((lastTierCntrct.getState() == State.Success) && !lastTierCntrct.halted() && !lastTierCntrct.finalized() && !lastTierCntrct.areReservedTokensDistributed()) return true;
     return false;
   }
 
