@@ -279,6 +279,12 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
         });
     })
 
+    it("should can not distribute reserved tokens", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		let canDistributeReservedTokens = await mintedTokenCappedCrowdsaleExt.canDistributeReservedTokens.call();
+		false.should.be.equal(canDistributeReservedTokens);
+	});
+
 	it("should set endsAt", async () => {
 		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
 		await mintedTokenCappedCrowdsaleExt.setEndsAt(parseInt((new Date()).getTime()/1000, {from: accounts[0]})).should.be.fulfilled;
@@ -295,6 +301,12 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	it("should not set endsAt, if crowdsale is already ended", async () => {
 		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
 		await mintedTokenCappedCrowdsaleExt.setEndsAt(parseInt((new Date()).getTime()/1000, {from: accounts[0]})).should.be.rejectedWith(ERROR_MSG);
+	});
+
+	it("should can distribute reserved tokens", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		let canDistributeReservedTokens = await mintedTokenCappedCrowdsaleExt.canDistributeReservedTokens.call();
+		true.should.be.equal(canDistributeReservedTokens);
 	});
 
 	it("should fail finalize", async () => {
@@ -349,6 +361,12 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	it("should fail distribution of reserved tokens", async () => {
 		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
 		await mintedTokenCappedCrowdsaleExt.distributeReservedTokens(1).should.be.rejectedWith(ERROR_MSG);
+	});
+
+	it("should can not distribute reserved tokens", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		let canDistributeReservedTokens = await mintedTokenCappedCrowdsaleExt.canDistributeReservedTokens.call();
+		false.should.be.equal(canDistributeReservedTokens);
 	});
 
 	it("should finalize crowdsale", async () => {
