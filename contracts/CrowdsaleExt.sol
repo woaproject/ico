@@ -431,30 +431,21 @@ contract CrowdsaleExt is Haltable {
   }
 
   function setStartsAt(uint time) onlyOwner {
-    if (finalized) throw;
-
-    if (!isUpdatable) throw;
-
-    if(now > time) {
-      throw; // Don't change past
-    }
-
-    if(time > endsAt) {
-      throw;
-    }
-
-    if(now > startsAt) {
-      throw;
-    }
+    assert(!finalized);
+    assert(isUpdatable);
+    assert(now <= time); // Don't change past
+    assert(time <= endsAt);
+    assert(now <= startsAt);
 
     CrowdsaleExt lastTierCntrct = CrowdsaleExt(getLastTier());
     if (lastTierCntrct.finalized()) throw;
 
     uint8 tierPosition = getTierPosition(this);
 
+    //start time should be greater then end time of previous tiers
     for (uint8 j = 0; j < tierPosition; j++) {
       CrowdsaleExt crowdsale = CrowdsaleExt(joinedCrowdsales[j]);
-      if (time < crowdsale.endsAt()) throw;
+      assert(time >= crowdsale.endsAt());
     }
 
     startsAt = time;
@@ -472,21 +463,11 @@ contract CrowdsaleExt is Haltable {
    *
    */
   function setEndsAt(uint time) public onlyOwner {
-    if (finalized) throw;
-
-    if (!isUpdatable) throw;
-
-    if(now > time) {
-      throw; // Don't change past
-    }
-
-    if(startsAt > time) {
-      throw;
-    }
-
-    if(now > endsAt) {
-      throw;
-    }
+    assert(!finalized);
+    assert(isUpdatable);
+    assert(now <= time);// Don't change past
+    assert(startsAt <= time);
+    assert(now <= endsAt);
 
     CrowdsaleExt lastTierCntrct = CrowdsaleExt(getLastTier());
     if (lastTierCntrct.finalized()) throw;
@@ -496,7 +477,7 @@ contract CrowdsaleExt is Haltable {
 
     for (uint8 j = tierPosition + 1; j < joinedCrowdsalesLen; j++) {
       CrowdsaleExt crowdsale = CrowdsaleExt(joinedCrowdsales[j]);
-      if (time > crowdsale.startsAt()) throw;
+      assert(time <= crowdsale.startsAt());
     }
 
     endsAt = time;
