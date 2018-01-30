@@ -17,7 +17,7 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
   bool public reservedTokensAreDistributed = false;
   uint public distributedReservedTokensDestinationsLen = 0;
 
-  function ReservedTokensFinalizeAgent(CrowdsaleTokenExt _token, CrowdsaleExt _crowdsale) {
+  function ReservedTokensFinalizeAgent(CrowdsaleTokenExt _token, CrowdsaleExt _crowdsale) public {
     token = _token;
     crowdsale = _crowdsale;
   }
@@ -29,9 +29,7 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
 
   //distributes reserved tokens. Should be called before finalization
   function distributeReservedTokens(uint reservedTokensDistributionBatch) public {
-    if(msg.sender != address(crowdsale)) {
-      throw;
-    }
+    assert(msg.sender == address(crowdsale));
 
     assert(reservedTokensDistributionBatch > 0);
     assert(!reservedTokensAreDistributed);
@@ -77,9 +75,7 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
 
   /** Called once by crowdsale finalize() if the sale was success. */
   function finalizeCrowdsale() public {
-    if(msg.sender != address(crowdsale)) {
-      throw;
-    }
+    assert(msg.sender == address(crowdsale));
 
     if (token.reservedTokensDestinationsLen() > 0) {
       assert(reservedTokensAreDistributed);
