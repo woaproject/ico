@@ -1,7 +1,7 @@
 {
-  "name": "oracles-tokenmarket-ico",
+  "name": "poa-tokenmarket-ico",
   "version": "2.0.0",
-  "description": "Updated tokenmarket ico contracts for POA Network ICO wizard",
+  "description": "Updated tokenmarket ico contracts for POA Network Token wizard",
   "main": "migrations/2_deploy_contracts.js",
   "directories": {
     "doc": "docs"
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vbaranov/ico.git"
+    "url": "git+https://github.com/poanetwork/ico.git"
   },
   "author": "POA Network",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/vbaranov/ico/issues"
+    "url": "https://github.com/poanetwork/ico/issues"
   },
-  "homepage": "https://github.com/vbaranov/ico#readme",
+  "homepage": "https://github.com/poanetwork/ico#readme",
   "dependencies": {
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",

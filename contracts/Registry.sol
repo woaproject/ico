@@ -3,7 +3,7 @@ pragma solidity ^0.4.6;
 import "oracles-zeppelin/contracts/ownership/Ownable.sol";
 
 /**
- * Registry of contracts deployed from ICO Wizard.
+ * Registry of contracts deployed from Token Wizard.
  */
 contract Registry is Ownable {
   mapping (address => address[]) public deployedContracts;
