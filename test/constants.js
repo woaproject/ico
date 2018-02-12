@@ -29,7 +29,7 @@ const whiteListItem = {
   maxCap: utils.toFixed(10 * 10**token.decimals),
 };
 
-const investments = [0.5, 11, 1, 0.5, 5.5, 4];
+const investments = [0.5, 11, 1, 0.5, 5.5, 4, 3];
 
 const startCrowdsale = parseInt(new Date().getTime()/1000);
 let endCrowdsale = new Date().setDate(new Date().getDate() + 4);
