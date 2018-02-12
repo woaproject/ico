@@ -130,6 +130,20 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		constants.whiteListItem.maxCap.should.be.bignumber.equal(earlyParticipantWhitelistObj[2]);
 	});
 
+	it("checks, that addresses are whitelisted", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		let isAddress1Whitelisted = await mintedTokenCappedCrowdsaleExt.isAddressWhitelisted.call(accounts[2]);
+		true.should.be.equal(isAddress1Whitelisted);
+		let isAddress2Whitelisted = await mintedTokenCappedCrowdsaleExt.isAddressWhitelisted.call(accounts[4]);
+		true.should.be.equal(isAddress2Whitelisted);
+	});
+
+	it("checks, that address is not whitelisted", async () => {
+		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
+		let isAddressWhitelisted = await mintedTokenCappedCrowdsaleExt.isAddressWhitelisted.call(accounts[5]);
+		false.should.be.equal(isAddressWhitelisted);
+	});
+
 	it("should not add an address to the whitelist that was already added", async () => {
         let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
         let currentWhitelistLength = await mintedTokenCappedCrowdsaleExt.whitelistedParticipantsLength.call();
