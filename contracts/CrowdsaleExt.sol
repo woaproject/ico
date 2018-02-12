@@ -218,15 +218,13 @@ contract CrowdsaleExt is Haltable {
         // tokenAmount < minCap for investor
         throw;
       }
-      if(tokenAmount > earlyParticipantWhitelist[receiver].maxCap) {
-        // tokenAmount > maxCap for investor
-        throw;
-      }
 
       // Check that we did not bust the investor's cap
       if (isBreakingInvestorCap(receiver, tokenAmount)) {
         throw;
       }
+
+      updateInheritedEarlyParticipantWhitelist(receiver, tokenAmount);
     } else {
       if(tokenAmount < token.minCap() && tokenAmountOf[receiver] == 0) {
         throw;
@@ -255,10 +253,6 @@ contract CrowdsaleExt is Haltable {
 
     // Pocket the money
     if(!multisigWallet.send(weiAmount)) throw;
-
-    if (isWhiteListed) {
-      updateInheritedEarlyParticipantWhitelist(tokenAmount);
-    }
 
     // Tell us invest was success
     Invested(receiver, weiAmount, tokenAmount, customerId);
@@ -348,7 +342,7 @@ contract CrowdsaleExt is Haltable {
     assert(minCap <= maxCap);
     assert(now <= endsAt);
 
-    if (earlyParticipantWhitelist[addr].maxCap == 0) {
+    if (!isAddressWhitelisted(addr)) {
       whitelistedParticipants.push(addr);
       Whitelisted(addr, status, minCap, maxCap);
     } else {
@@ -369,15 +363,15 @@ contract CrowdsaleExt is Haltable {
     }
   }
 
-  function updateInheritedEarlyParticipantWhitelist(uint tokensBought) private {
+  function updateInheritedEarlyParticipantWhitelist(address reciever, uint tokensBought) private {
     if (!isWhiteListed) throw;
-    if (tokensBought < earlyParticipantWhitelist[msg.sender].minCap) throw;
+    if (tokensBought < earlyParticipantWhitelist[reciever].minCap && tokenAmountOf[reciever] == 0) throw;
 
     uint8 tierPosition = getTierPosition(this);
 
-    for (uint8 j = tierPosition; j < joinedCrowdsalesLen; j++) {
+    for (uint8 j = tierPosition + 1; j < joinedCrowdsalesLen; j++) {
       CrowdsaleExt crowdsale = CrowdsaleExt(joinedCrowdsales[j]);
-      crowdsale.updateEarlyParticipantWhitelist(msg.sender, tokensBought);
+      crowdsale.updateEarlyParticipantWhitelist(reciever, tokensBought);
     }
   }
 
@@ -386,11 +380,22 @@ contract CrowdsaleExt is Haltable {
     assert(addr != address(0));
     assert(now <= endsAt);
     assert(isTierJoined(msg.sender));
-    if (tokensBought < earlyParticipantWhitelist[addr].minCap) throw;
+    if (tokensBought < earlyParticipantWhitelist[addr].minCap && tokenAmountOf[addr] == 0) throw;
     //if (addr != msg.sender && contractAddr != msg.sender) throw;
     uint newMaxCap = earlyParticipantWhitelist[addr].maxCap;
     newMaxCap = newMaxCap.minus(tokensBought);
     earlyParticipantWhitelist[addr] = WhiteListData({status:earlyParticipantWhitelist[addr].status, minCap:0, maxCap:newMaxCap});
+  }
+
+  function isAddressWhitelisted(address addr) public constant returns(bool) {
+    for (uint i = 0; i < whitelistedParticipants.length; i++) {
+      if (whitelistedParticipants[i] == addr) {
+        return true;
+        break;
+      }
+    }
+
+    return false;
   }
 
   function whitelistedParticipantsLength() public constant returns (uint) {
