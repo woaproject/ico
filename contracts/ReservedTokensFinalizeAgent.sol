@@ -34,8 +34,13 @@ contract ReservedTokensFinalizeAgent is FinalizeAgent {
     assert(!reservedTokensAreDistributed);
     assert(distributedReservedTokensDestinationsLen < token.reservedTokensDestinationsLen());
 
+
     // How many % of tokens the founders and others get
-    uint tokensSold = crowdsale.tokensSold();
+    uint tokensSold = 0;
+    for (uint8 i = 0; i < crowdsale.joinedCrowdsalesLen(); i++) {
+      CrowdsaleExt tier = CrowdsaleExt(crowdsale.joinedCrowdsales(i));
+      tokensSold = tokensSold.plus(tier.tokensSold());
+    }
 
     uint startLooping = distributedReservedTokensDestinationsLen;
     uint batch = token.reservedTokensDestinationsLen().minus(distributedReservedTokensDestinationsLen);

@@ -1,6 +1,5 @@
 const CrowdsaleTokenExt = artifacts.require("./CrowdsaleTokenExt.sol");
 const MintedTokenCappedCrowdsaleExt = artifacts.require("./MintedTokenCappedCrowdsaleExt.sol");
-const NullFinalizeAgentExt = artifacts.require("./NullFinalizeAgentExt.sol");
 const ReservedTokensFinalizeAgent = artifacts.require("./ReservedTokensFinalizeAgent.sol");
 const ERROR_MSG = 'VM Exception while processing transaction: invalid opcode';
 
@@ -47,14 +46,6 @@ contract('CrowdsaleTokenExt', function(accounts) {
 	    	return instance.mintAgents.call(MintedTokenCappedCrowdsaleExt.address);
 	    }).then(function(res) {
 	    	assert.equal(res, true, "Crowdsale contract should be in minAgents of token contract");
-	    });
-	});
-
-	it("should get mint agent: NullFinalizeAgentExt contract", function() {
-		return CrowdsaleTokenExt.deployed().then(function(instance) {
-	    	return instance.mintAgents.call(NullFinalizeAgentExt.address);
-	    }).then(function(res) {
-	    	assert.equal(res, true, "NullFinalizeAgentExt contract should be in minAgents of token contract");
 	    });
 	});
 

@@ -35,6 +35,10 @@ const startCrowdsale = parseInt(new Date().getTime()/1000);
 let endCrowdsale = new Date().setDate(new Date().getDate() + 4);
 endCrowdsale = parseInt(new Date(endCrowdsale).setUTCHours(0)/1000);
 
+let startCrowdsale2 = endCrowdsale;
+let endCrowdsale2 = new Date().setDate(new Date().getDate() + 8);
+endCrowdsale2 = parseInt(new Date(endCrowdsale2).setUTCHours(0)/1000);
+
 const crowdsale = {
   "start": startCrowdsale,
   "end": endCrowdsale,
@@ -44,9 +48,29 @@ const crowdsale = {
   "isWhiteListed": true
 }
 
+const crowdsaleMultiple = [{
+  "start": startCrowdsale,
+  "end": endCrowdsale,
+  "minimumFundingGoal": 0,
+  "maximumSellableTokens": utils.toFixed(1000 * 10**token.decimals),
+  "isUpdatable": true,
+  "isWhiteListed": true
+},{"start": startCrowdsale2,
+  "end": endCrowdsale2,
+  "minimumFundingGoal": 0,
+  "maximumSellableTokens": utils.toFixed(500 * 10**token.decimals),
+  "isUpdatable": true,
+  "isWhiteListed": true}]
+
 const pricingStrategy = {
   "rate": 1000
 };
+
+const pricingStrategyMultiple = [{
+  "rate": 1000
+},{
+  "rate": 2000
+}];
 
 module.exports = {
   token,
@@ -55,5 +79,7 @@ module.exports = {
   investments,
   whiteListItem,
   crowdsale,
-  pricingStrategy
+  crowdsaleMultiple,
+  pricingStrategy,
+  pricingStrategyMultiple
 }
