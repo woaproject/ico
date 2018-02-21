@@ -29,7 +29,15 @@ const whiteListItem = {
   maxCap: utils.toFixed(10 * 10**token.decimals),
 };
 
+const whiteListItem2 = {
+  status: true,
+  minCap: utils.toFixed(1 * 10**token.decimals),
+  maxCap: utils.toFixed(20 * 10**token.decimals),
+};
+
 const investments = [0.5, 11, 1, 0.5, 5.5, 4, 3];
+
+const investments2 = [0.5, 21, 1, 0.5, 5.5, 14, 3, 10];
 
 const startCrowdsale = parseInt(new Date().getTime()/1000);
 let endCrowdsale = new Date().setDate(new Date().getDate() + 4);
@@ -52,13 +60,13 @@ const crowdsaleMultiple = [{
   "start": startCrowdsale,
   "end": endCrowdsale,
   "minimumFundingGoal": 0,
-  "maximumSellableTokens": utils.toFixed(1000 * 10**token.decimals),
+  "maximumSellableTokens": utils.toFixed(1000000 * 10**token.decimals),
   "isUpdatable": true,
   "isWhiteListed": true
 },{"start": startCrowdsale2,
   "end": endCrowdsale2,
   "minimumFundingGoal": 0,
-  "maximumSellableTokens": utils.toFixed(500 * 10**token.decimals),
+  "maximumSellableTokens": utils.toFixed(1000000 * 10**token.decimals),
   "isUpdatable": true,
   "isWhiteListed": true}]
 
@@ -69,7 +77,7 @@ const pricingStrategy = {
 const pricingStrategyMultiple = [{
   "rate": 1000
 },{
-  "rate": 2000
+  "rate": 1000
 }];
 
 module.exports = {
@@ -77,7 +85,9 @@ module.exports = {
   reservedTokens,
   reservedTokens2,
   investments,
+  investments2,
   whiteListItem,
+  whiteListItem2,
   crowdsale,
   crowdsaleMultiple,
   pricingStrategy,
