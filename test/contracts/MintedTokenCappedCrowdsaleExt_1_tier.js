@@ -6,6 +6,8 @@ const constants = require("../constants");
 const utils = require("../utils");
 const ERROR_MSG = 'VM Exception while processing transaction: invalid opcode';
 
+const timeout = ms => new Promise(res => setTimeout(res, ms))
+
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(web3.BigNumber))
@@ -16,7 +18,7 @@ let weiToSend2
 let weiToSend3
 let weiToSend4
 
-contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
+contract('MintedTokenCappedCrowdsaleExt 1 tier', function(accounts) {
 
 	it("should get rate", async () => {
 		let flatPricingExt = await FlatPricingExt.deployed();
@@ -101,13 +103,15 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 	it("should get finalize agent", async () => {
 		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
 		let finalizeAgent = await mintedTokenCappedCrowdsaleExt.finalizeAgent.call();
-		ReservedTokensFinalizeAgent.address.should.be.bignumber.equal(finalizeAgent);
+		let reservedTokensFinalizeAgent = await ReservedTokensFinalizeAgent.deployed();
+		reservedTokensFinalizeAgent.address.should.be.bignumber.equal(finalizeAgent);
 	});
 
 	it("should get pricing strategy", async () => {
 		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
-		let flatPricingExt = await mintedTokenCappedCrowdsaleExt.pricingStrategy.call();
-		FlatPricingExt.address.should.be.equal(flatPricingExt);
+		let flatPricingExtAddr = await mintedTokenCappedCrowdsaleExt.pricingStrategy.call();
+		let flatPricingExt = await FlatPricingExt.deployed();
+		flatPricingExt.address.should.be.equal(flatPricingExtAddr);
 	});
 
 	it("should get isTierJoined", async () => {
@@ -267,15 +271,8 @@ contract('MintedTokenCappedCrowdsaleExt', function(accounts) {
 		await mintedTokenCappedCrowdsaleExt.setEndsAt(parseInt((new Date()).getTime()/1000, {from: accounts[0]})).should.be.fulfilled;
 	});
 
-	//todo: remove this
-	for (let i = 0; i < 10; i++) {
-		it("should get state of crowdsale", async () => {
-			let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
-			await mintedTokenCappedCrowdsaleExt.getState.call();
-		});
-	}
-
 	it("should not set endsAt, if crowdsale is already ended", async () => {
+		await timeout(2000)
 		let mintedTokenCappedCrowdsaleExt = await MintedTokenCappedCrowdsaleExt.deployed();
 		await mintedTokenCappedCrowdsaleExt.setEndsAt(parseInt((new Date()).getTime()/1000, {from: accounts[0]})).should.be.rejectedWith(ERROR_MSG);
 	});

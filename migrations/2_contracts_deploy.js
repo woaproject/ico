@@ -39,7 +39,7 @@ const crowdsaleParams = [
 	constants.crowdsale.isWhiteListed
 ];
 
-let nullFinalizeAgentParams = [];
+//let nullFinalizeAgentParams = [];
 let reservedTokensFinalizeAgentParams = [];
 
 module.exports = function(deployer, network, accounts) {
@@ -56,12 +56,12 @@ module.exports = function(deployer, network, accounts) {
 		await deployer.link(SafeMathLibExt, MintedTokenCappedCrowdsaleExt);
 	  	await deployer.deploy(MintedTokenCappedCrowdsaleExt, ...crowdsaleParams);
 
-	  	nullFinalizeAgentParams.push(MintedTokenCappedCrowdsaleExt.address);
+	  	//nullFinalizeAgentParams.push(MintedTokenCappedCrowdsaleExt.address);
 	  	reservedTokensFinalizeAgentParams.push(CrowdsaleTokenExt.address);
 	  	reservedTokensFinalizeAgentParams.push(MintedTokenCappedCrowdsaleExt.address);
 
-	  	await deployer.link(SafeMathLibExt, NullFinalizeAgentExt);
-	  	await deployer.deploy(NullFinalizeAgentExt, ...nullFinalizeAgentParams);
+	  	//await deployer.link(SafeMathLibExt, NullFinalizeAgentExt);
+	  	//await deployer.deploy(NullFinalizeAgentExt, ...nullFinalizeAgentParams);
 	  	await deployer.link(SafeMathLibExt, ReservedTokensFinalizeAgent);
 	  	await deployer.deploy(ReservedTokensFinalizeAgent, ...reservedTokensFinalizeAgentParams);
 
@@ -85,7 +85,7 @@ module.exports = function(deployer, network, accounts) {
 
 	    await crowdsaleTokenExt.setMintAgent(MintedTokenCappedCrowdsaleExt.address, true);
 
-	    await crowdsaleTokenExt.setMintAgent(NullFinalizeAgentExt.address, true);
+	    //await crowdsaleTokenExt.setMintAgent(NullFinalizeAgentExt.address, true);
 
 	    await crowdsaleTokenExt.setMintAgent(ReservedTokensFinalizeAgent.address, true);
 
